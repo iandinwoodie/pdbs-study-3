@@ -20,6 +20,7 @@ to be cleaned manually, we start from the manually cleaned data. We load the
 data and verify its dimensions and structure.
 
 ```{r}
+# TODO: Replace "mock-manual.csv" with "manual.csv" when it is available.
 df <- read.csv('../data/mock-manual.csv', header=TRUE, skipNul=TRUE)
 dim(df)
 str(df)
