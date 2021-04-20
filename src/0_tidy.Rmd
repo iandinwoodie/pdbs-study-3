@@ -26,7 +26,7 @@ dim(df)
 str(df, list.len=25)
 ```
 
-We see that we have 963 responses across 484 fields.
+We see that we have 2318 responses across 484 fields.
 
 ## Drop Unnecessary Columns
 
@@ -62,7 +62,7 @@ dim(df)
 str(df, list.len=25)
 ```
 
-Now we are working with 963 responses across 274 columns.
+Now we are working with 2318 responses across 274 columns.
 
 # Final Summary
 
