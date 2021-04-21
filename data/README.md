@@ -35,3 +35,13 @@ the following table:
 Each row represents a complete entry (i.e., both event 1 and event 2 responses)
 for a single dog. Incomplete entries were dropped from the data set.
 
+## Manually Cleaned Data
+
+Due to the flexibility afforded by text entry fields, particularly those related
+to medication, it was necessary to produce a manually cleaned data set
+(`manually-cleaned.csv`). For example, for a certain medication one user may
+have provided `{dosage: "10mg", frequency: "1/2 tablet 2x per day"}` while the
+expected format for such a response was `{dosage: "5", frequency: "2"}`.
+Therefore, certain columns of the data were manually cleaned by researchers
+working on the study to ensure appropriate coding of responses.
+
