@@ -13,6 +13,11 @@ library(ggpubr)
 knitr::opts_chunk$set(echo=TRUE)
 ```
 
+# Overview
+
+The purpose of this notebook is to guide readers through the stages of tidying
+the data for later calculation of descriptive and inferential statistics.
+
 # Loading the Data
 
 The raw data is included in the data directory (i.e., `data/raw.csv`). However,
