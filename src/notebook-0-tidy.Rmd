@@ -76,6 +76,20 @@ df <- df %>%
   mutate_at(vars(matches('^(is|has)_')), funs(replace(., . == 2, NA))) %>%
   mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.)))
 str(df, list.len=5)
+
+# TODO: sex
+```
+
+## Factor
+
+```{r}
+df <- df %>%
+  mutate_at(vars(matches('_rating$')), funs(as.factor(.)))
+df$purebred_akc_breed <- as.factor(df$purebred_akc_breed)
+df$acquisition_source <- as.factor(df$acquisition_source)
+df$prof_with_best_results <- as.factor(df$prof_with_best_results)
+df$owner_id <- as.factor(df$owner_id)
+str(df, list.len=5)
 ```
 
 # Drop Entires Without Fear/Anxiety
