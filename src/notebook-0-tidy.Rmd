@@ -74,10 +74,9 @@ type logical.
 ```{r}
 df <- df %>%
   mutate_at(vars(matches('^(is|has)_')), funs(replace(., . == 2, NA))) %>%
-  mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.)))
+  mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.))) %>%
+  mutate(is_male = (sex == 1), .keep = "unused")
 str(df, list.len=5)
-
-# TODO: sex
 ```
 
 ## Factor
