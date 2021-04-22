@@ -29,7 +29,7 @@ directory README file (`data/README.md`).
 # is available.
 df <- read.csv('../data/manually-cleaned-mock.csv', header=TRUE, skipNul=TRUE)
 stopifnot(identical(dim(df)+0, c(2318, 484)))
-str(df, list.len=10)
+str(df, list.len=5)
 ```
 
 ## Applying Readable Column Names
@@ -41,7 +41,7 @@ Let's load and apply these updated names to our data frame.
 
 ```{r}
 colnames(df) <- readr::read_lines('../references/readable-column-names.csv')
-str(df, list.len=10)
+head(colnames(df), n=5)
 ```
 
 ## Dropping Unnecessary Columns
@@ -54,7 +54,7 @@ and drop any unmentioned columns.
 necessary_cols <- readr::read_lines('../references/columns-for-tidying.csv')
 df <- df %>% select(one_of(necessary_cols))
 stopifnot(identical(dim(df)+0, c(2318, 274)))
-str(df, list.len=10)
+dim(df)
 ```
 
 The number of columns is reduced by about 43% and the number of rows remains the
@@ -75,7 +75,7 @@ type logical.
 df <- df %>%
   mutate_at(vars(matches('^(is|has)_')), funs(replace(., . == 2, NA))) %>%
   mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.)))
-str(df, list.len=10)
+str(df, list.len=5)
 ```
 
 # Drop Entires Without Fear/Anxiety
