@@ -7,7 +7,6 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
-library(ggpubr)
 knitr::opts_chunk$set(echo=TRUE)
 ```
 
@@ -16,7 +15,9 @@ knitr::opts_chunk$set(echo=TRUE)
 This notebook serves as reference for the tidying procedures used to prepare the
 study data for analysis.
 
-# Loading the Data
+# Building the Data Frame
+
+## Loading the Data Into Memory
 
 We start the tidying process from the manually cleaned data set
 (`data/manually-cleaned.csv`) since it is structured and coded appropriately.
@@ -31,28 +32,26 @@ stopifnot(identical(dim(df)+0, c(2318, 484)))
 str(df, list.len=10)
 ```
 
+## Applying Readable Column Names
+
 Our starting data set is 2318 rows (completed dog entries) by 484 columns (data
 fields per dog). A list of improved column names focused on readability has been
 provided in the reference directory (`references/readable-column-names.csv`).
 Let's load and apply these updated names to our data frame.
 
 ```{r}
-colnames(df) <- read_lines('../references/readable-column-names.csv')
+colnames(df) <- readr::read_lines('../references/readable-column-names.csv')
 str(df, list.len=10)
 ```
 
-# Isolate Minimal Data Set
-
-Our first priority is to isolate the minimal data set for this study.
-
-## Drop Unnecessary Columns
+## Dropping Unnecessary Columns
 
 A list of the necessary columns for tidying the data has been provided in the
 reference directory (`references/columns-for-tidying.csv`). Let's load this file
 and drop any unmentioned columns.
 
 ```{r}
-necessary_cols <- read_lines('../references/columns-for-tidying.csv')
+necessary_cols <- readr::read_lines('../references/columns-for-tidying.csv')
 df <- df %>% select(one_of(necessary_cols))
 stopifnot(identical(dim(df)+0, c(2318, 274)))
 str(df, list.len=10)
@@ -61,7 +60,25 @@ str(df, list.len=10)
 The number of columns is reduced by about 43% and the number of rows remains the
 same (as expected).
 
-## Drop Entires Without Fear/Anxiety
+# Adjusting Data Types
+
+We use the following sections to adjust field types in the data frame.
+
+## Logical
+
+For some questions where a binary response was desired an additional "I don't
+know" response was allowed. We make a first pass through the binary fields to
+convert these values to NA. We then make a second pass to convert the fields to
+type logical.
+
+```{r}
+df <- df %>%
+  mutate_at(vars(matches('^(is|has)_')), funs(replace(., . == 2, NA))) %>%
+  mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.)))
+str(df, list.len=10)
+```
+
+# Drop Entires Without Fear/Anxiety
 
 For this study we are investigating fear and anxiety, therefore, we only need to
 retain entries relevant to that goal. We use the fear/anxiety binary indicator
