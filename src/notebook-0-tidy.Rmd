@@ -63,20 +63,20 @@ same (as expected).
 
 ## Drop Entires Without Fear/Anxiety
 
-For this study we are investigating fear and anxiety, therefore we only need to
-retain records relevant to that goal.
+For this study we are investigating fear and anxiety, therefore, we only need to
+retain entries relevant to that goal. We use the fear/anxiety binary indicator
+to determine which entries should be kept.
 
 ```{r}
-# Field "q02_main_2" is the binary indicator for fear/anxiety in the data set.
-#df <- df %>%
-#  filter(q02_main_2 == 1) %>%
-#  select(-q02_main_2)
-#stopifnot(identical(dim(df)+0, c(1305, 274)))
-#str(df, list.len=10)
+df <- df %>%
+  filter(has_exhibited_fear_anxiety == 1) %>%
+  select(-has_exhibited_fear_anxiety)
+stopifnot(identical(dim(df)+0, c(1305, 273)))
+dim(df)
 ```
 
 We see that there are entries for 1305 fearful and/or anxious dogs in the data
-set and the column count has decremented to 274 as a result of dropping the
+set and the column count has decremented to 273 as a result of dropping the
 fear/anxiety indicator.
 
 # Final Summary
