@@ -64,6 +64,17 @@ same (as expected).
 
 We use the following sections to adjust field types in the data frame.
 
+## Numeric
+
+```{r, warning=FALSE}
+df <- df %>%
+  mutate_at(vars(matches('_(wks|mos|yrs|dose|freq)$')), funs(as.numeric(.))) %>%
+  mutate_at(vars(matches('_time_to_improve$')), funs(as.numeric(.)))
+df$weight <- as.numeric(df$weight)
+
+df %>% select(matches('_(wks|mos|yrs)$')) %>% str(list.len=5)
+```
+
 ## Logical
 
 For some questions where a binary response was desired an additional "I don't
@@ -75,18 +86,20 @@ type logical.
 df <- df %>%
   mutate_at(vars(matches('^(is|has)_')), funs(replace(., . == 2, NA))) %>%
   mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.))) %>%
-  mutate(is_male = (sex == 1), .keep = "unused")
-str(df, list.len=5)
+  mutate(is_male = (sex == 1), .keep = 'unused')
+df %>% select(matches('^(is|has)_')) %>% str(list.len=5)
 ```
 
 ## Factor
 
 ```{r}
 df <- df %>%
-  mutate_at(vars(matches('_rating$')), funs(as.factor(.)))
+  mutate_at(vars(matches('_rating$')), funs(as.factor(.))) %>%
+  mutate_at(vars(matches('_units$')), funs(as.factor(.)))
 df$purebred_akc_breed <- as.factor(df$purebred_akc_breed)
 df$acquisition_source <- as.factor(df$acquisition_source)
 df$prof_with_best_results <- as.factor(df$prof_with_best_results)
+df$non_improve_ultimate_outcome <- as.factor(df$non_improve_ultimate_outcome)
 df$owner_id <- as.factor(df$owner_id)
 str(df, list.len=5)
 ```
