@@ -51,8 +51,8 @@ reference directory (`references/columns-for-tidying.csv`). Let's load this file
 and drop any unmentioned columns.
 
 ```{r}
-necessary_cols <- readr::read_lines('../references/columns-for-tidying.csv')
-df <- df %>% select(one_of(necessary_cols))
+df <- df %>% select(one_of(
+  readr::read_lines('../references/columns-for-tidying.csv')))
 stopifnot(identical(dim(df)+0, c(2318, 274)))
 dim(df)
 ```
