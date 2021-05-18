@@ -134,7 +134,7 @@ summary(df)
 # Saving the Tidy Data
 
 Save the data to a file in the data directory using RDS format so that the data
-types are saved and the resulting file is compressed.
+types are stored and the resulting file is compressed.
 
 ```{r}
 saveRDS(df, '../data/tidy.Rds')
