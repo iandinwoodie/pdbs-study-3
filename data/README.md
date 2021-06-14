@@ -43,5 +43,6 @@ to medication, it was necessary to produce a manually cleaned data set
 have provided `{dosage: "10mg", frequency: "1/2 tablet 2x per day"}` while the
 expected format for such a response was `{dosage: "5", frequency: "2"}`.
 Therefore, certain columns of the data were manually cleaned by researchers
-working on the study to ensure appropriate coding of responses.
+working on the study to ensure appropriate coding of responses. OpenRefine was
+used to aid the data cleaning process.
 
