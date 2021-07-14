@@ -53,7 +53,7 @@ and drop any unmentioned columns.
 ```{r}
 df <- df %>% select(one_of(
   readr::read_lines('../references/columns-for-tidying.csv')))
-stopifnot(identical(dim(df)+0, c(2318, 274)))
+stopifnot(identical(dim(df)+0, c(2318, 276)))
 dim(df)
 ```
 
@@ -114,7 +114,7 @@ to determine which entries should be kept.
 df <- df %>%
   filter(has_exhibited_fear_anxiety == 1) %>%
   select(-has_exhibited_fear_anxiety)
-stopifnot(identical(dim(df)+0, c(1305, 273)))
+stopifnot(identical(dim(df)+0, c(1305, 275)))
 dim(df)
 ```
 
