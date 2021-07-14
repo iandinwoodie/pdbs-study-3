@@ -163,6 +163,7 @@ buspirone_duration_units
 buspirone_duration_wks
 buspirone_duration_mos
 buspirone_duration_yrs
+valium_type
 valium_dose
 valium_freq
 is_valium_prn
@@ -191,6 +192,7 @@ diphenhydramine_duration_units
 diphenhydramine_duration_wks
 diphenhydramine_duration_mos
 diphenhydramine_duration_yrs
+other_drug_desc
 other_drug_dose
 other_drug_freq
 is_other_drug_prn
