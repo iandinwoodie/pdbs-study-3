@@ -1,0 +1,25 @@
+---
+title: "Exploratory Data Analysis (EDA)"
+author: "Ian Dinwoodie"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+# Loading the Data
+
+Load the raw data and verify the expected dimensions.
+
+```{r}
+df <- readRDS('../data/tidy.Rds')
+stopifnot(identical(dim(df)+0, c(1305, 275)))
+str(df, list.len=5)
+```
+
+# Descriptive Stats
+
+TODO
