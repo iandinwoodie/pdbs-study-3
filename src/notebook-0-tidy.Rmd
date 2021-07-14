@@ -27,8 +27,8 @@ directory README file (`data/README.md`).
 ```{r}
 # TODO: Replace "manually-cleaned-mock.csv" with "manually-cleaned.csv" when it
 # is available.
-df <- read.csv('../data/manually-cleaned-mock.csv', header=TRUE, skipNul=TRUE)
-stopifnot(identical(dim(df)+0, c(2318, 484)))
+df <- read.csv('../data/manually-cleaned.csv', header=TRUE, skipNul=TRUE)
+stopifnot(identical(dim(df)+0, c(2318, 486)))
 str(df, list.len=5)
 ```
 
