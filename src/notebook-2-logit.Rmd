@@ -7,10 +7,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(knitr)
-library(plyr)
-library(broom)
-library(AER)
-library(boot)
+#library(plyr)
+#library(broom)
+#library(AER)
+#library(boot)
 opts_chunk$set(echo=TRUE)
 set.seed(1)
 ```
@@ -21,73 +21,65 @@ Load the raw data and verify the expected dimensions.
 
 ```{r}
 df <- readRDS('../data/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1305, 273)))
+stopifnot(identical(dim(df)+0, c(1305, 275)))
 str(df, list.len=5)
 ```
 
+# Adjust the Data
+
+TODO: Relocate this section to the tidy notebook.
 
 ```{r}
-# Convert "dog_sex" into "male" columns.
-df.mod <- df.orig
-df.mod$male <- ifelse(df.mod$dog_sex==1, 1, 0)
-
-# Create dummy variables for the levels 1-4 of "behavior_prog".
+# Create dummy variables for the levels 1-4 of "behav_mod_strategy_used".
 # We ignore levels 5 and 6 because they are irrelevant to the question.
-df.mod$behavior_prog_1 <- ifelse(df.mod$behavior_prog==1, 1, 0)
-df.mod$behavior_prog_1[is.na(df.mod$behavior_prog_1)] <- 0
-df.mod$behavior_prog_1 <- as.integer(df.mod$behavior_prog_1)
-df.mod$behavior_prog_2 <- ifelse(df.mod$behavior_prog==2, 1, 0)
-df.mod$behavior_prog_2[is.na(df.mod$behavior_prog_2)] <- 0
-df.mod$behavior_prog_2 <- as.integer(df.mod$behavior_prog_2)
-df.mod$behavior_prog_3 <- ifelse(df.mod$behavior_prog==3, 1, 0)
-df.mod$behavior_prog_3[is.na(df.mod$behavior_prog_3)] <- 0
-df.mod$behavior_prog_3 <- as.integer(df.mod$behavior_prog_3)
-df.mod$behavior_prog_4 <- ifelse(df.mod$behavior_prog==4, 1, 0)
-df.mod$behavior_prog_4[is.na(df.mod$behavior_prog_4)] <- 0
-df.mod$behavior_prog_4 <- as.integer(df.mod$behavior_prog_4)
-
-# Add a column indicating if the dog was found to have pain.
-df.mod$pain <- ifelse(df.mod$health_iss_3==1, 1, 0)
-
-# Add a column indicating if the dog was found to have fear/anxiety.
-df.mod$fear_anxiety <- ifelse(df.mod$q02_main_2==1, 1, 0)
+df$has_systematic_desen <- ifelse(df$behav_mod_strategy_used==1, 1, 0)
+df$has_systematic_desen[is.na(df$has_systematic_desen)] <- 0
+df$has_systematic_desen <- as.integer(df$has_systematic_desen)
+df$has_counter_conditioning <- ifelse(df$behav_mod_strategy_used==2, 1, 0)
+df$has_counter_conditioning[is.na(df$has_counter_conditioning)] <- 0
+df$has_counter_conditioning <- as.integer(df$has_counter_conditioning)
+df$has_sd_and_cc <- ifelse(df$behav_mod_strategy_used==3, 1, 0)
+df$has_sd_and_cc[is.na(df$has_sd_and_cc)] <- 0
+df$has_sd_and_cc <- as.integer(df$has_sd_and_cc)
+df$has_leadership <- ifelse(df$behav_mod_strategy_used==4, 1, 0)
+df$has_leadership[is.na(df$has_leadership)] <- 0
+df$has_leadership <- as.integer(df$has_leadership)
+df <- subset(df, select=-behav_mod_strategy_used)
+stopifnot(identical(dim(df)+0, c(1305, 278)))
 
 # Correct training method entries.
 # We consider dogs trained with any form of punishment to be excluded from a
 # reward-only training style. We consider compulsion a form of punishment.
-df.mod$punish <- ifelse(
-    ((df.mod$training_methods_2==1) | (df.mod$training_methods_3==1)
-     | (df.mod$training_methods_3==1)), 1, 0)
-df.mod$reward <- ifelse(df.mod$punish==1, 0, df.mod$training_methods_1)
-df.mod <- subset(df.mod,
-             select=-c(training_methods_1, training_methods_2,
-                       training_methods_3,training_methods_4))
+df$has_punish_based_training <- ifelse(
+    ((df$has_punish_based_training==1) | (df$has_combo_based_training==1) 
+     | (df$has_compulsion_based_training==1)), 1, 0)
+df$has_reward_based_training <- ifelse(df$has_punish_based_training==1, 0,
+                                       df$has_reward_based_training)
+df <- subset(df, select=-c(has_combo_based_training,
+                           has_compulsion_based_training))
+stopifnot(identical(dim(df)+0, c(1305, 276)))
 
 # Drop clicker/whistle from equipment since it is present in the behavior
 # techniques.
-df.mod <- subset(df.mod, select=-equipment_11)
+df <- subset(df, select=-has_clicker)
+stopifnot(identical(dim(df)+0, c(1305, 275)))
 
-names(df.mod)[names(df.mod)=='q03_form_5'] <- 'has_bitten'
-df.mod$has_bitten <- as.factor(df.mod$has_bitten)
+# TODO: explain the lines below (68-71)
+df$is_trainer_credentialed <- ifelse(df$is_trainer_credentialed == 1, 1, 0)
+df[is.na(df$is_trainer_credentialed), 'is_trainer_credentialed'] <- 0
+df$is_trainer_cpdt_credentialed <- ifelse(
+    df$is_trainer_cpdt_credentialed == 1, 1, 0)
+df[is.na(df$is_trainer_cpdt_credentialed), 'is_trainer_cpdt_credentialed'] <- 0
 
-df.mod$trainer_cred <- ifelse(df.mod$trainer_cred == 1, 1, 0)
-df.mod[is.na(df.mod$trainer_cred), 'trainer_cred'] <- 0
-names(df.mod)[names(df.mod)=='trainer_cred_type'] <- 'trainer_cpdt'
-df.mod$trainer_cpdt <- ifelse(df.mod$trainer_cpdt == 1, 1, 0)
-df.mod[is.na(df.mod$trainer_cpdt), 'trainer_cpdt'] <- 0
+df$is_consultant_credentialed <- ifelse(
+    df$is_consultant_credentialed == 1, 1, 0)
+df[is.na(df$is_consultant_credentialed), 'is_consultant_credentialed'] <- 0
+df$is_consultant_cbcc_ka <- ifelse(df$is_consultant_cbcc_ka == 1, 1, 0)
+df$is_consultant_cdbc <- ifelse(df$is_consultant_cdbc == 1, 1, 0)
+df$is_consultant_acaab <- ifelse(df$is_consultant_acaab == 1, 1, 0)
+df$is_consultant_dacvb <- ifelse(df$is_consultant_dacvb == 1, 1, 0)
 
-df.mod$consultant_cred <- ifelse(df.mod$consultant_cred == 1, 1, 0)
-df.mod[is.na(df.mod$consultant_cred), 'consultant_cred'] <- 0
-names(df.mod)[names(df.mod)=='consultant_cred_type_1'] <- 'consult_cbcc'
-df.mod$consult_cbcc <- ifelse(df.mod$consult_cbcc == 1, 1, 0)
-names(df.mod)[names(df.mod)=='consultant_cred_type_2'] <- 'consult_cdbc'
-df.mod$consult_cdbc <- ifelse(df.mod$consult_cdbc == 1, 1, 0)
-names(df.mod)[names(df.mod)=='consultant_cred_type_3'] <- 'consult_caab'
-df.mod$consult_caab <- ifelse(df.mod$consult_caab == 1, 1, 0)
-names(df.mod)[names(df.mod)=='consultant_cred_type_4'] <- 'consult_dacvb'
-df.mod$consult_dacvb <- ifelse(df.mod$consult_dacvb == 1, 1, 0)
-
-str(df.mod)
+summary(df)
 ```
 
 Retain only the columns necessary for analysis.
@@ -100,10 +92,10 @@ predictors <- c(
   '^equipment_\\d+$',
   '^med_list_\\d+$',
   '^alt_med_type_\\d+$',
-  '^behavior_prog_\\d+$',
+  '^behav_mod_strategy_used_\\d+$',
   '^behavior_tech_used_\\d+$',
   '^pain$',
-  '^fear_anxiety$',
+  '^has_exhibited_aggression$',
   '^reward$',
   '^has_bitten$',
   '^trainer_cred$',
@@ -118,40 +110,40 @@ outcomes <- c(
   "^agg_\\S+$"
 )
 pattern <- paste(c(predictors, outcomes), collapse='|')
-idx <- grep(pattern, names(df.mod))
-df.mod <- df.mod[, idx]
-dim(df.mod)
+idx <- grep(pattern, names(df))
+df <- df[, idx]
+dim(df)
 ```
 
 All remaining columns except for the response to treatment for aggression scores
 are factors. Update the column types to reflect this.
 
 ```{r}
-for (col in names(df.mod)) {
+for (col in names(df)) {
   if (grepl("agg_", col, fixed=TRUE)) next
-  df.mod[, col] <- as.factor(df.mod[, col])
+  df[, col] <- as.factor(df[, col])
 }
 
-str(df.mod)
+str(df)
 ```
 
 
 Get the number of dogs that used equipment:
 
 ```{r}
-df.mod$used_equip <- ifelse(
-  (df.mod$behavior_tech_used_1 == 1 | df.mod$behavior_tech_used_2 == 1
-   | df.mod$behavior_tech_used_3 == 1 | df.mod$behavior_tech_used_4 == 1
-   | df.mod$behavior_tech_used_5 == 1 | df.mod$behavior_tech_used_6 == 1
-   | df.mod$behavior_tech_used_7 == 1 | df.mod$behavior_tech_used_8 == 1
-   | df.mod$behavior_tech_used_9 == 1 | df.mod$behavior_tech_used_10 == 1
-   | df.mod$behavior_tech_used_11 == 1 | df.mod$behavior_tech_used_12 == 1
-   | df.mod$behavior_tech_used_13 == 1 | df.mod$behavior_tech_used_14 == 1
-   | df.mod$behavior_tech_used_15 == 1 | df.mod$behavior_tech_used_16 == 1
-   | df.mod$behavior_tech_used_17 == 1 | df.mod$behavior_tech_used_18 == 1
-   | df.mod$behavior_tech_used_19 == 1), TRUE, FALSE)
+df$used_equip <- ifelse(
+  (df$behavior_tech_used_1 == 1 | df$behavior_tech_used_2 == 1
+   | df$behavior_tech_used_3 == 1 | df$behavior_tech_used_4 == 1
+   | df$behavior_tech_used_5 == 1 | df$behavior_tech_used_6 == 1
+   | df$behavior_tech_used_7 == 1 | df$behavior_tech_used_8 == 1
+   | df$behavior_tech_used_9 == 1 | df$behavior_tech_used_10 == 1
+   | df$behavior_tech_used_11 == 1 | df$behavior_tech_used_12 == 1
+   | df$behavior_tech_used_13 == 1 | df$behavior_tech_used_14 == 1
+   | df$behavior_tech_used_15 == 1 | df$behavior_tech_used_16 == 1
+   | df$behavior_tech_used_17 == 1 | df$behavior_tech_used_18 == 1
+   | df$behavior_tech_used_19 == 1), TRUE, FALSE)
 
-summary(df.mod$used_equip)
+summary(df$used_equip)
 ```
 
 General rule of thumb for logistic regression is that each variable should have
@@ -201,8 +193,8 @@ apply_min_xtab <- function(df, cutoff=10)
   return(df[, !(names(df) %in% drops)])
 }
 
-df.mod <- apply_binary_response_criteria(df.mod)
-summary(df.mod)
+df <- apply_binary_response_criteria(df)
+summary(df)
 ```
 
 Now we initialize other functions that will be reused throughout the analysis.
@@ -233,7 +225,7 @@ get_agg_data_frame <- function(df, pred.patterns, outcome, excludes)
 
 ```{r}
 # Drops NAs before regression
-df.mod <- df.mod[!is.na(df.mod$male),]
+df <- df[!is.na(df$male),]
 ```
 
 # Overall Aggression
@@ -244,7 +236,7 @@ df.mod <- df.mod[!is.na(df.mod$male),]
 outcome <- "agg_avg"
 excludes <- vector()
 df_agg <- apply_binary_response_criteria(
-    get_agg_data_frame(df.mod, predictors, outcome, excludes))
+    get_agg_data_frame(df, predictors, outcome, excludes))
 df_agg$agg_avg <- as.factor(ifelse(df_agg$agg_avg <= 4, 0, 1))
 
 summary(df_agg)
@@ -282,7 +274,7 @@ knitr::kable(df_results)
 outcome <- "agg_conf"
 excludes <- vector()
 df_agg <- apply_binary_response_criteria(
-    get_agg_data_frame(df.mod, predictors, outcome, excludes),
+    get_agg_data_frame(df, predictors, outcome, excludes),
     min_cutoff=20)
 df_agg$agg_conf <- as.factor(ifelse(df_agg$agg_conf <= 4, 0, 1))
 
@@ -321,7 +313,7 @@ knitr::kable(df_results)
 outcome <- "agg_idh"
 excludes <- vector()
 df_agg <- apply_binary_response_criteria(
-    get_agg_data_frame(df.mod, predictors, outcome, excludes),
+    get_agg_data_frame(df, predictors, outcome, excludes),
     min_cutoff=10)
 df_agg$agg_idh <- as.factor(ifelse(df_agg$agg_idh <= 4, 0, 1))
 
@@ -360,7 +352,7 @@ knitr::kable(df_results)
 outcome <- "agg_ext_ppl"
 excludes <- vector()
 df_agg <- apply_binary_response_criteria(
-    get_agg_data_frame(df.mod, predictors, outcome, excludes),
+    get_agg_data_frame(df, predictors, outcome, excludes),
     min_cutoff=10)
 df_agg$agg_ext_ppl <- as.factor(ifelse(df_agg$agg_ext_ppl <= 4, 0, 1))
 
@@ -399,7 +391,7 @@ knitr::kable(df_results)
 outcome <- "agg_ext_dog"
 excludes <- vector()
 df_agg <- apply_binary_response_criteria(
-    get_agg_data_frame(df.mod, predictors, outcome, excludes),
+    get_agg_data_frame(df, predictors, outcome, excludes),
     min_cutoff=10)
 df_agg$agg_ext_dog <- as.factor(ifelse(df_agg$agg_ext_dog <= 4, 0, 1))
 
@@ -438,7 +430,7 @@ knitr::kable(df_results)
 outcome <- "agg_pred"
 excludes <- vector()
 df_agg <- apply_binary_response_criteria(
-    get_agg_data_frame(df.mod, predictors, outcome, excludes),
+    get_agg_data_frame(df, predictors, outcome, excludes),
     min_cutoff=10)
 df_agg$agg_pred <- as.factor(ifelse(df_agg$agg_pred <= 4, 0, 1))
 
