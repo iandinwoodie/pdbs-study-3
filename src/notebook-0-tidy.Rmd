@@ -27,7 +27,8 @@ directory README file (`data/README.md`).
 ```{r}
 # TODO: Replace "manually-cleaned-mock.csv" with "manually-cleaned.csv" when it
 # is available.
-df <- read.csv('../data/manually-cleaned.csv', header=TRUE, skipNul=TRUE)
+df <- read.csv('../data/manually-cleaned.csv', header=TRUE, skipNul=TRUE,
+               na.strings=c("","NA"))
 stopifnot(identical(dim(df)+0, c(2318, 486)))
 str(df, list.len=5)
 ```
@@ -101,10 +102,13 @@ df$acquisition_source <- as.factor(df$acquisition_source)
 df$prof_with_best_results <- as.factor(df$prof_with_best_results)
 df$non_improve_ultimate_outcome <- as.factor(df$non_improve_ultimate_outcome)
 df$owner_id <- as.factor(df$owner_id)
+df$valium_type <- as.factor(df$valium_type)
+df$other_drug_desc <- as.factor(df$other_drug_desc)
+
 str(df, list.len=5)
 ```
 
-# Drop Entires Without Fear/Anxiety
+# Drop Entries Without Fear/Anxiety
 
 For this study we are investigating fear and anxiety, therefore, we only need to
 retain entries relevant to that goal. We use the fear/anxiety binary indicator
@@ -121,6 +125,15 @@ dim(df)
 We see that there are entries for 1305 fearful and/or anxious dogs in the data
 set and the column count has decremented to 273 as a result of dropping the
 fear/anxiety indicator.
+
+# Drop Unused Factor Levels
+
+Sub-setting the data frame to only the entries for dogs with fear/anxiety may
+result in unused factor levels. These unused levels can be dropped.
+
+```{r}
+df[] <- lapply(df, function(x) if(is.factor(x)) factor(x) else x)
+```
 
 # Final Summary
 
