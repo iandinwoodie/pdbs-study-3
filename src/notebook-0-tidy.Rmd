@@ -29,6 +29,7 @@ df <- read.csv('../data/manually-cleaned.csv', header=TRUE, skipNul=TRUE,
                na.strings=c("","NA"))
 stopifnot(identical(dim(df)+0, c(2318, 486)))
 str(df, list.len=5)
+summary(df)
 ```
 
 ## Applying Readable Column Names
