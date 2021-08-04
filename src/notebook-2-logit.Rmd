@@ -79,29 +79,67 @@ df$is_consultant_cdbc <- ifelse(df$is_consultant_cdbc == 1, 1, 0)
 df$is_consultant_acaab <- ifelse(df$is_consultant_acaab == 1, 1, 0)
 df$is_consultant_dacvb <- ifelse(df$is_consultant_dacvb == 1, 1, 0)
 
+# Bin fear/anxiety types into categories.
+# bins: {inanimate, animate, situational, generalized, ptsd}
+# 2 + 1 + 5 + 1 + 1 = 10
+df$thunderstorm_phobia_rating <- as.integer(df$thunderstorm_phobia_rating)
+df$non_thunderstorm_noise_phobia_rating <- as.integer(df$non_thunderstorm_noise_phobia_rating)
+df$inanimate_rating <- rowMeans(
+  subset(df, select = c(
+    thunderstorm_phobia_rating,
+    non_thunderstorm_noise_phobia_rating)), na.rm = TRUE)
+summary(df$inanimate_rating)
+
+df$animate_rating <- as.integer(df$fear_of_other_dogs_rating)
+summary(df$animate_rating)
+
+df$crowd_phobia_rating <- as.integer(df$crowd_phobia_rating)
+df$situation_anxiety_rating <- as.integer(df$situation_anxiety_rating)
+df$veterinary_anxiety_rating <- as.integer(df$veterinary_anxiety_rating)
+df$separation_anxiety_rating <- as.integer(df$separation_anxiety_rating)
+df$anxiety_in_the_car_rating <- as.integer(df$anxiety_in_the_car_rating)
+df$situational_rating <- rowMeans(
+  subset(df, select = c(
+    crowd_phobia_rating,
+    situation_anxiety_rating,
+    veterinary_anxiety_rating,
+    separation_anxiety_rating,
+    anxiety_in_the_car_rating
+  )), na.rm = TRUE)
+summary(df$situational_rating)
+
+df$general_anxiety_rating <- as.integer(df$general_anxiety_rating)
+summary(df$general_anxiety_rating)
+
+df$ptsd_rating <- as.integer(df$ptsd_rating)
+summary(df$ptsd_rating)
+#df$overall_rating <- TODO
+
 str(df)
+stopifnot(identical(dim(df)+0, c(1305, 278)))
 ```
 
 Retain only the columns necessary for analysis.
 
 ```{r}
 # Retain only the columns to be used for analysis.
-# where is neutered
-# age
-# breed <- we can't include this here because too many models
-#          maybe we use the AKC breeding groups
-# aggression
-# age_of_acquisition
-# is_multi_dog_household
+# - neuter status
+# - age
+# - breed <- we can't include this here because too many models
+#            maybe we use the AKC breeding groups
+# - aggression
+# - age_of_acquisition
+# - is_multi_dog_household
 
-# age of onset is usually 0-2
-# you're less likely to get separation anxiety later on
-# however, there is a blip for geriatrics getting senior onset anxiety
-
-# dogs usually develop serious thunderstorm phobia at 5-9 years
+# Additional comments from Dr. Dodman:
+# Age of onset for fear/anxiety is usually 0-2.
+# You're less likely to get separation anxiety later on. However, there is a
+# blip for geriatrics getting senior onset anxiety.
+# Dogs usually develop serious thunderstorm phobia at 5-9 years
 
 predictors <- c(
   '^is_male$',
+  '^is_neutered$',
   '^has_seen_veterinarian$',
   '^has_seen_trainer$',
   '^has_seen_consultant$',
@@ -202,6 +240,7 @@ pattern <- paste(c(predictors, outcomes), collapse='|')
 idx <- grep(pattern, names(df))
 df <- df[, idx]
 dim(df)
+stopifnot(identical(dim(df)+0, c(1305, 88)))
 ```
 
 All remaining columns except for the response to treatment for aggression scores
