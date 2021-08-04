@@ -90,7 +90,8 @@ df$inanimate_rating <- rowMeans(
     non_thunderstorm_noise_phobia_rating)), na.rm = TRUE)
 summary(df$inanimate_rating)
 
-df$animate_rating <- as.integer(df$fear_of_other_dogs_rating)
+df$fear_of_other_dogs_rating <- as.integer(df$fear_of_other_dogs_rating)
+df$animate_rating <- df$fear_of_other_dogs_rating
 summary(df$animate_rating)
 
 df$crowd_phobia_rating <- as.integer(df$crowd_phobia_rating)
@@ -109,14 +110,31 @@ df$situational_rating <- rowMeans(
 summary(df$situational_rating)
 
 df$general_anxiety_rating <- as.integer(df$general_anxiety_rating)
-summary(df$general_anxiety_rating)
+df$generalized_rating <- df$general_anxiety_rating
+summary(df$generalized_rating )
 
 df$ptsd_rating <- as.integer(df$ptsd_rating)
 summary(df$ptsd_rating)
-#df$overall_rating <- TODO
+
+df$other_fear_anxiety_rating <- as.integer(df$other_fear_anxiety_rating)
+df$fa_overall_rating <- rowMeans(
+  subset(df, select = c(
+    thunderstorm_phobia_rating,
+    non_thunderstorm_noise_phobia_rating,
+    fear_of_other_dogs_rating,
+    crowd_phobia_rating,
+    situation_anxiety_rating,
+    veterinary_anxiety_rating,
+    separation_anxiety_rating,
+    anxiety_in_the_car_rating,
+    general_anxiety_rating,
+    ptsd_rating,
+    other_fear_anxiety_rating
+  )), na.rm = TRUE)
+summary(df$fa_overall_rating)
 
 str(df)
-stopifnot(identical(dim(df)+0, c(1305, 278)))
+stopifnot(identical(dim(df)+0, c(1305, 280)))
 ```
 
 Retain only the columns necessary for analysis.
