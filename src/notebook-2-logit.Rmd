@@ -2,7 +2,9 @@
 title: "Binary Logistic Regression"
 author: "Ian Dinwoodie"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -373,6 +375,7 @@ apply_min_xtab <- function(df, cutoff=10)
 }
 
 df <- apply_binary_response_criteria(df)
+stopifnot(identical(dim(df)+0, c(1296, 77)))
 summary(df)
 ```
 
@@ -487,8 +490,13 @@ knitr::kable(df_results)
 # dichotomous.
 outcome <- "animate_rating"
 excludes <- vector()
+
+# Drop "inanimate_rating" to prevent pattern match with "animate_rating".
+df_tmp <- subset(df, select=-inanimate_rating)
+stopifnot(identical(dim(df_tmp)+0, c(1296, 76)))
+
 df_red <- apply_binary_response_criteria(
-    get_reduced_data_frame(df, predictors, outcome, excludes),
+    get_reduced_data_frame(df_tmp, predictors, outcome, excludes),
     min_cutoff=10)
 df_red$animate_rating <- as.factor(ifelse(df_red$animate_rating <= 4, 0, 1))
 
