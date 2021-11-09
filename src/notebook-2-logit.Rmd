@@ -139,8 +139,27 @@ df$fa_overall_rating <- rowMeans(
   )), na.rm = TRUE)
 summary(df$fa_overall_rating)
 
-str(df)
+#str(df)
 stopifnot(identical(dim(df)+0, c(1305, 280)))
+
+# Condense punishing devices into a single column.
+df$has_punishment_device <- ifelse(
+    df$has_martingale == T, T, F)
+df$has_punishment_device <- ifelse(
+    df$has_prong_collar == T, T, df$has_punishment_device)
+df$has_punishment_device <- ifelse(
+    df$has_non_remote_electric_collar == T, T, df$has_punishment_device)
+df$has_punishment_device <- ifelse(
+    df$has_remote_electric_collar == T, T, df$has_punishment_device)
+df$has_punishment_device <- ifelse(
+    df$has_muzzle == T, T, df$has_punishment_device)
+df <- subset(df,
+             select=-c(has_martingale,
+                       has_prong_collar,
+                       has_non_remote_electric_collar,
+                       has_remote_electric_collar,
+                       has_muzzle))
+str(df)
 ```
 
 Retain only the columns necessary for analysis.
@@ -168,14 +187,15 @@ predictors <- c(
   '^has_seen_trainer$',
   '^has_seen_consultant$',
   #'^has_flat_collar$',
-  '^has_martingale$',
-  '^has_prong_collar$',
+  #'^has_martingale$',
+  #'^has_prong_collar$',
   #'^has_head_halter$',
   #'^has_harness_with_chest_lead$',
   #'^has_harness_with_shoulder_lead$',
-  '^has_non_remote_electric_collar$',
-  '^has_remote_electric_collar$',
-  '^has_muzzle$',
+  #'^has_non_remote_electric_collar$',
+  #'^has_remote_electric_collar$',
+  #'^has_muzzle$',
+  '^has_punishment_device$',
   '^has_other_training_equipment$',
   '^has_fluoxetine$',
   '^has_sertraline$',
