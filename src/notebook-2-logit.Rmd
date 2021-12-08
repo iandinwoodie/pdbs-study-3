@@ -139,8 +139,27 @@ df$fa_overall_rating <- rowMeans(
   )), na.rm = TRUE)
 summary(df$fa_overall_rating)
 
-str(df)
+#str(df)
 stopifnot(identical(dim(df)+0, c(1305, 280)))
+
+# Condense punishing devices into a single column.
+df$has_punishment_device <- ifelse(
+    df$has_martingale == T, T, F)
+df$has_punishment_device <- ifelse(
+    df$has_prong_collar == T, T, df$has_punishment_device)
+df$has_punishment_device <- ifelse(
+    df$has_non_remote_electric_collar == T, T, df$has_punishment_device)
+df$has_punishment_device <- ifelse(
+    df$has_remote_electric_collar == T, T, df$has_punishment_device)
+df$has_punishment_device <- ifelse(
+    df$has_muzzle == T, T, df$has_punishment_device)
+df <- subset(df,
+             select=-c(has_martingale,
+                       has_prong_collar,
+                       has_non_remote_electric_collar,
+                       has_remote_electric_collar,
+                       has_muzzle))
+str(df)
 ```
 
 Retain only the columns necessary for analysis.
@@ -167,15 +186,16 @@ predictors <- c(
   '^has_seen_veterinarian$',
   '^has_seen_trainer$',
   '^has_seen_consultant$',
-  '^has_flat_collar$',
-  '^has_martingale$',
-  '^has_prong_collar$',
-  '^has_head_halter$',
-  '^has_harness_with_chest_lead$',
-  '^has_harness_with_shoulder_lead$',
-  '^has_non_remote_electric_collar$',
-  '^has_remote_electric_collar$',
-  '^has_muzzle$',
+  #'^has_flat_collar$',
+  #'^has_martingale$',
+  #'^has_prong_collar$',
+  #'^has_head_halter$',
+  #'^has_harness_with_chest_lead$',
+  #'^has_harness_with_shoulder_lead$',
+  #'^has_non_remote_electric_collar$',
+  #'^has_remote_electric_collar$',
+  #'^has_muzzle$',
+  '^has_punishment_device$',
   '^has_other_training_equipment$',
   '^has_fluoxetine$',
   '^has_sertraline$',
@@ -254,7 +274,7 @@ pattern <- paste(c(predictors, outcomes), collapse='|')
 idx <- grep(pattern, names(df))
 df <- df[, idx]
 dim(df)
-stopifnot(identical(dim(df)+0, c(1305, 83)))
+#stopifnot(identical(dim(df)+0, c(1305, 83)))
 ```
 
 All remaining columns except for the response to treatment for aggression scores
@@ -317,7 +337,7 @@ Get the number of dogs that used equipment:
 df <- df[!is.na(df$is_male),]
 df <- df[!is.na(df$is_neutered),]
 summary(df)
-stopifnot(identical(dim(df)+0, c(1296, 83)))
+#stopifnot(identical(dim(df)+0, c(1296, 83)))
 ```
 
 General rule of thumb for logistic regression is that each variable should have
@@ -375,7 +395,7 @@ apply_min_xtab <- function(df, cutoff=10)
 }
 
 df <- apply_binary_response_criteria(df)
-stopifnot(identical(dim(df)+0, c(1296, 77)))
+#stopifnot(identical(dim(df)+0, c(1296, 77)))
 summary(df)
 ```
 
@@ -493,7 +513,7 @@ excludes <- vector()
 
 # Drop "inanimate_rating" to prevent pattern match with "animate_rating".
 df_tmp <- subset(df, select=-inanimate_rating)
-stopifnot(identical(dim(df_tmp)+0, c(1296, 76)))
+#stopifnot(identical(dim(df_tmp)+0, c(1296, 76)))
 
 df_red <- apply_binary_response_criteria(
     get_reduced_data_frame(df_tmp, predictors, outcome, excludes),
