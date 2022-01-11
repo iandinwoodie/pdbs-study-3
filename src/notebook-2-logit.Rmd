@@ -151,8 +151,8 @@ df$has_punishment_device <- ifelse(
     df$has_non_remote_electric_collar == T, T, df$has_punishment_device)
 df$has_punishment_device <- ifelse(
     df$has_remote_electric_collar == T, T, df$has_punishment_device)
-df$has_punishment_device <- ifelse(
-    df$has_muzzle == T, T, df$has_punishment_device)
+#df$has_punishment_device <- ifelse(
+#    df$has_muzzle == T, T, df$has_punishment_device)
 df <- subset(df,
              select=-c(has_martingale,
                        has_prong_collar,
@@ -194,7 +194,7 @@ predictors <- c(
   #'^has_harness_with_shoulder_lead$',
   #'^has_non_remote_electric_collar$',
   #'^has_remote_electric_collar$',
-  #'^has_muzzle$',
+  '^has_muzzle$',
   '^has_punishment_device$',
   '^has_other_training_equipment$',
   '^has_fluoxetine$',
@@ -439,14 +439,17 @@ df_red$fa_overall_rating <- as.factor(ifelse(df_red$fa_overall_rating <= 4, 0, 1
 summary(df_red)
 ```
 
-```{r fa_overall_glm, warning=FALSE}
+```{r fa_overall_glm}
 # Fit model to data.
 f <- as.formula(paste0(outcome, "~", "."))
 m <- glm(f, data=df_red, family="binomial")
 summary(m)
 
-#print(vif(m))
+print(vif(m))
+```
 
+
+```{r fa_overall_results, warning=FALSE}
 df_results <- broom::tidy(m, conf.int=TRUE, exponentiate=TRUE)
 #df_results$p.value <- p.adjust(df_results$p.value, method='BH')
 df_results$sig <- ''
@@ -479,14 +482,16 @@ df_red$inanimate_rating <- as.factor(
 summary(df_red)
 ```
 
-```{r fa_inanimate_glm, warning=FALSE}
+```{r fa_inanimate_glm}
 # Fit model to data.
 f <- as.formula(paste0(outcome, "~", "."))
 m <- glm(f, data=df_red, family="binomial")
 summary(m)
 
 print(vif(m))
+```
 
+```{r fa_inanimate_results, warning=FALSE}
 df_results <- broom::tidy(m, conf.int=TRUE, exponentiate=TRUE)
 #df_results$p.value <- p.adjust(df_results$p.value, method='BH')
 df_results$sig <- ''
@@ -523,14 +528,16 @@ df_red$animate_rating <- as.factor(ifelse(df_red$animate_rating <= 4, 0, 1))
 summary(df_red)
 ```
 
-```{r fa_animate_glm, warning=FALSE}
+```{r fa_animate_glm}
 # Fit model to data.
 f <- as.formula(paste0(outcome, "~", "."))
 m <- glm(f, data=df_red, family="binomial")
 summary(m)
 
 print(vif(m))
+```
 
+```{r fa_animate_results, warning=FALSE}
 df_results <- broom::tidy(m, conf.int=TRUE, exponentiate=TRUE)
 #df_results$p.value <- p.adjust(df_results$p.value, method='BH')
 df_results$sig <- ''
@@ -563,14 +570,16 @@ df_red$situational_rating <-
 summary(df_red)
 ```
 
-```{r fa_situational_glm, warning=FALSE}
+```{r fa_situational_glm}
 # Fit model to data.
 f <- as.formula(paste0(outcome, "~", "."))
 m <- glm(f, data=df_red, family="binomial")
 summary(m)
 
 print(vif(m))
+```
 
+```{r fa_situational_results, warning=FALSE}
 df_results <- broom::tidy(m, conf.int=TRUE, exponentiate=TRUE)
 #df_results$p.value <- p.adjust(df_results$p.value, method='BH')
 df_results$sig <- ''
@@ -603,14 +612,16 @@ df_red$generalized_rating <-
 summary(df_red)
 ```
 
-```{r fa_generalized_glm, warning=FALSE}
+```{r fa_generalized_glm}
 # Fit model to data.
 f <- as.formula(paste0(outcome, "~", "."))
 m <- glm(f, data=df_red, family="binomial")
 summary(m)
 
 print(vif(m))
+```
 
+```{r fa_generalized_results, warning=FALSE}
 df_results <- broom::tidy(m, conf.int=TRUE, exponentiate=TRUE)
 #df_results$p.value <- p.adjust(df_results$p.value, method='BH')
 df_results$sig <- ''
@@ -640,19 +651,21 @@ df_red <- apply_binary_response_criteria(
 df_red$ptsd_rating <- as.factor(ifelse(df_red$ptsd_rating <= 4, 0, 1))
 
 # Collinearity adjustments.
-#df_red <- subset(df_red, select=-consultant_cred) # VIF 12.67
+df_red <- subset(df_red, select=-is_consultant_credentialed) # VIF 10.59
 
 summary(df_red)
 ```
 
-```{r fa_ptsd_glm, warning=FALSE}
+```{r fa_ptsd_glm}
 # Fit model to data.
 f <- as.formula(paste0(outcome, "~", "."))
 m <- glm(f, data=df_red, family="binomial")
 summary(m)
 
 print(vif(m))
+```
 
+```{r fa_ptsd_results, warning=FALSE}
 df_results <- broom::tidy(m, conf.int=TRUE, exponentiate=TRUE)
 #df_results$p.value <- p.adjust(df_results$p.value, method='BH')
 df_results$sig <- ''
