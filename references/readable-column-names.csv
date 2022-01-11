@@ -1,4 +1,11 @@
 record_id
+question_reason_for_part_1
+question_reason_for_part_2
+question_reason_for_part_3
+question_reason_for_part_4
+question_reason_for_part_5
+owner_id
+zip_code
 name
 is_purebred
 is_akc
@@ -38,7 +45,6 @@ has_exhibited_destruction
 has_exhibited_prob_rolling
 has_exhibited_escaping
 has_exhibited_hyperactivity
-behav_prob_count
 is_agg_to_familiar_person_at_home
 is_agg_to_unfamiliar_person_at_home
 is_agg_to_unfamiliar_person_away
@@ -51,7 +57,6 @@ is_agg_to_trainers
 is_agg_to_groomers
 is_agg_to_non_dog_animal
 non_dog_animals_triggering_agg
-agg_type_count
 has_growled
 has_snarled
 has_snapped
@@ -75,7 +80,6 @@ has_separation_anxiety
 has_anxiety_in_the_car
 has_other_fear_anxiety
 other_fear_anxiety_desc
-fear_anxiety_type_count
 has_compulsive_spinning
 has_compulsive_tail_chasing
 has_compulsive_light_chasing
@@ -263,7 +267,6 @@ buspirone_duration_units
 buspirone_duration_wks
 buspirone_duration_mos
 buspirone_duration_yrs
-valium_type
 valium_dose
 valium_freq
 is_valium_prn
@@ -292,7 +295,6 @@ diphenhydramine_duration_units
 diphenhydramine_duration_wks
 diphenhydramine_duration_mos
 diphenhydramine_duration_yrs
-other_drug_desc
 other_drug_dose
 other_drug_freq
 is_other_drug_prn
@@ -483,4 +485,6 @@ prob_rolling_time_to_improve
 escaping_rating
 escaping_time_to_improve
 non_improve_ultimate_outcome
-owner_id
+phase_2_complete
+feedback_length_2
+feedback_extra_2

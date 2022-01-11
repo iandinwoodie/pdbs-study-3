@@ -25,9 +25,9 @@ Explanations for the various stages of the study data are available in the data
 directory README file (`data/README.md`).
 
 ```{r}
-df <- read.csv('../data/manually-cleaned.csv', header=TRUE, skipNul=TRUE,
+df <- read.csv('../pdbs-data/data/processed/processed.csv', header=TRUE, skipNul=TRUE,
                na.strings=c("","NA"))
-stopifnot(identical(dim(df)+0, c(2318, 486)))
+stopifnot(identical(dim(df)+0, c(5057, 490)))
 str(df, list.len=5)
 summary(df)
 ```
@@ -44,6 +44,18 @@ colnames(df) <- readr::read_lines('../references/readable-column-names.csv')
 head(colnames(df), n=5)
 ```
 
+## Dropping Unnecessary Rows
+
+Drop rows for entries that did not complete the treatment response phase of the
+study (i.e., phase 2).
+
+```{r}
+df <- df %>%
+  filter(phase_2_complete == 2)
+stopifnot(identical(dim(df)+0, c(2322, 490)))
+dim(df)
+```
+
 ## Dropping Unnecessary Columns
 
 A list of the necessary columns for tidying the data has been provided in the
@@ -53,7 +65,7 @@ and drop any unmentioned columns.
 ```{r}
 df <- df %>% select(one_of(
   readr::read_lines('../references/columns-for-tidying.csv')))
-stopifnot(identical(dim(df)+0, c(2318, 276)))
+stopifnot(identical(dim(df)+0, c(2322, 274)))
 dim(df)
 ```
 
@@ -101,8 +113,8 @@ df$acquisition_source <- as.factor(df$acquisition_source)
 df$prof_with_best_results <- as.factor(df$prof_with_best_results)
 df$non_improve_ultimate_outcome <- as.factor(df$non_improve_ultimate_outcome)
 df$owner_id <- as.factor(df$owner_id)
-df$valium_type <- as.factor(df$valium_type)
-df$other_drug_desc <- as.factor(df$other_drug_desc)
+#df$valium_type <- as.factor(df$valium_type)
+#df$other_drug_desc <- as.factor(df$other_drug_desc)
 
 str(df, list.len=5)
 ```
@@ -117,7 +129,7 @@ to determine which entries should be kept.
 df <- df %>%
   filter(has_exhibited_fear_anxiety == 1) %>%
   select(-has_exhibited_fear_anxiety)
-stopifnot(identical(dim(df)+0, c(1305, 275)))
+stopifnot(identical(dim(df)+0, c(1308, 273)))
 dim(df)
 ```
 
