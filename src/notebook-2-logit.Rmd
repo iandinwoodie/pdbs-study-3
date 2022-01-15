@@ -13,7 +13,6 @@ library(knitr)
 library(broom)
 library(plyr)
 library(AER)
-#library(boot)
 opts_chunk$set(echo=TRUE)
 set.seed(1)
 ```
@@ -24,7 +23,7 @@ Load the raw data and verify the expected dimensions.
 
 ```{r}
 df <- readRDS('../data/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+stopifnot(identical(dim(df)+0, c(1308, 275)))
 str(df, list.len=5)
 ```
 
@@ -48,7 +47,7 @@ df$has_leadership <- ifelse(df$behav_mod_strategy_used==4, 1, 0)
 df$has_leadership[is.na(df$has_leadership)] <- 0
 df$has_leadership <- as.integer(df$has_leadership)
 df <- subset(df, select=-behav_mod_strategy_used)
-stopifnot(identical(dim(df)+0, c(1308, 276)))
+#stopifnot(identical(dim(df)+0, c(1308, 276)))
 
 # Correct training method entries.
 # We consider dogs trained with any form of punishment to be excluded from a
@@ -60,12 +59,12 @@ df$has_reward_based_training <- ifelse(df$has_punish_based_training==1, 0,
                                        df$has_reward_based_training)
 df <- subset(df, select=-c(has_combo_based_training,
                            has_compulsion_based_training))
-stopifnot(identical(dim(df)+0, c(1308, 274)))
+#stopifnot(identical(dim(df)+0, c(1308, 274)))
 
 # Drop clicker/whistle from equipment since it is present in the behavior
 # techniques.
 df <- subset(df, select=-has_clicker)
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+#stopifnot(identical(dim(df)+0, c(1308, 273)))
 
 # TODO: explain the lines below (68-71)
 df$is_trainer_credentialed <- ifelse(df$is_trainer_credentialed == 1, 1, 0)
@@ -140,7 +139,7 @@ df$fa_overall_rating <- rowMeans(
 summary(df$fa_overall_rating)
 
 #str(df)
-stopifnot(identical(dim(df)+0, c(1308, 278)))
+stopifnot(identical(dim(df)+0, c(1308, 280)))
 
 # Condense punishing devices into a single column.
 df$has_punishment_device <- ifelse(
@@ -647,11 +646,14 @@ outcome <- "ptsd_rating"
 excludes <- vector()
 df_red <- apply_binary_response_criteria(
     get_reduced_data_frame(df, predictors, outcome, excludes),
-    min_cutoff=10)
+    min_cutoff=20) # Increase cutoff due to smaller same size.
 df_red$ptsd_rating <- as.factor(ifelse(df_red$ptsd_rating <= 4, 0, 1))
 
 # Collinearity adjustments.
 df_red <- subset(df_red, select=-is_consultant_credentialed) # VIF 10.59
+#df_red <- subset(df_red, select=-is_trainer_credentialed) # VIF 5.83
+#df_red <- subset(df_red, select=-has_massage_therapy) # VIF 5.74
+#df_red <- subset(df_red, select=-has_pheromone_therapy) # VIF 3.98
 
 summary(df_red)
 ```

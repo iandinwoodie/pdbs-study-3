@@ -98,7 +98,7 @@ type logical.
 df <- df %>%
   mutate_at(vars(matches('^(is|has)_')), funs(replace(., . == 2, NA))) %>%
   mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.))) %>%
-  mutate(is_male = (sex == 1), .keep = 'unused')
+  mutate(is_male = (sex == 1), .keep = "unused")
 df %>% select(matches('^(is|has)_')) %>% str(list.len=5)
 ```
 
@@ -129,7 +129,7 @@ to determine which entries should be kept.
 df <- df %>%
   filter(has_exhibited_fear_anxiety == 1) %>%
   select(-has_exhibited_fear_anxiety)
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+stopifnot(identical(dim(df)+0, c(1308, 275)))
 dim(df)
 ```
 
