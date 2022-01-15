@@ -1,3 +1,10 @@
+### General ###
+
+# macOS Finder artifacts
+.DS_Store
+
+### RStudio ###
+
 *.Rds
 *.Rproj
 .RData
