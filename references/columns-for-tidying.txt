@@ -20,7 +20,6 @@ neuter_age_in_yrs
 is_weight_known
 weight
 has_exhibited_aggression
-has_exhibited_fear_anxiety
 has_thunderstorm_phobia
 has_non_thunderstorm_noise_phobia
 has_crowd_phobia
