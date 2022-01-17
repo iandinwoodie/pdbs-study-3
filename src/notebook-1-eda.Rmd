@@ -16,7 +16,7 @@ Load the raw data and verify the expected dimensions.
 
 ```{r}
 df <- readRDS('../build/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+stopifnot(identical(dim(df)+0, c(1308, 275)))
 str(df, list.len=5)
 ```
 

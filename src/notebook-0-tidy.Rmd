@@ -34,13 +34,14 @@ summary(df)
 
 ## Applying Readable Column Names
 
-Our starting data set is 2318 rows (completed dog entries) by 484 columns (data
-fields per dog). A list of improved column names focused on readability has been
-provided in the reference directory (`references/readable-column-names.csv`).
-Let's load and apply these updated names to our data frame.
+A list of improved column names focused on readability has been provided in the
+reference directory (`references/readable-column-names.csv`). Let's load and
+apply these updated names to our data frame.
 
 ```{r}
-colnames(df) <- readr::read_lines('../references/readable-column-names.csv')
+new_col_names <- readr::read_lines('../references/readable-column-names.csv')
+stopifnot(identical(length(new_col_names)+0, c(490)))
+colnames(df) <- new_col_names
 head(colnames(df), n=5)
 ```
 
@@ -129,7 +130,7 @@ to determine which entries should be kept.
 df <- df %>%
   filter(has_exhibited_fear_anxiety == 1) %>%
   select(-has_exhibited_fear_anxiety)
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+stopifnot(identical(dim(df)+0, c(1308, 275)))
 dim(df)
 ```
 
