@@ -25,7 +25,7 @@ Explanations for the various stages of the study data are available in the data
 directory README file (`data/README.md`).
 
 ```{r}
-df <- read.csv('../pdbs-data/data/processed/processed.csv', header=TRUE, skipNul=TRUE,
+df <- read.csv('../data/data/processed/processed.csv', header=TRUE, skipNul=TRUE,
                na.strings=c("","NA"))
 stopifnot(identical(dim(df)+0, c(5057, 490)))
 str(df, list.len=5)
@@ -129,7 +129,7 @@ to determine which entries should be kept.
 df <- df %>%
   filter(has_exhibited_fear_anxiety == 1) %>%
   select(-has_exhibited_fear_anxiety)
-stopifnot(identical(dim(df)+0, c(1308, 275)))
+stopifnot(identical(dim(df)+0, c(1308, 273)))
 dim(df)
 ```
 
@@ -161,5 +161,6 @@ Save the data to a file in the data directory using RDS format so that the data
 types are stored and the resulting file is compressed.
 
 ```{r}
-saveRDS(df, '../data/tidy.Rds')
+dir.create(path='../build/', showWarnings=F)
+saveRDS(df, '../build/tidy.Rds')
 ```

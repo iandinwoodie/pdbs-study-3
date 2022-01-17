@@ -15,8 +15,8 @@ knitr::opts_chunk$set(echo=TRUE)
 Load the raw data and verify the expected dimensions.
 
 ```{r}
-df <- readRDS('../data/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1305, 275)))
+df <- readRDS('../build/tidy.Rds')
+stopifnot(identical(dim(df)+0, c(1308, 273)))
 str(df, list.len=5)
 ```
 
