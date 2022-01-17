@@ -2,7 +2,7 @@
 title: "Building Tidy Data"
 author: "Ian Dinwoodie"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -19,42 +19,39 @@ study data for analysis.
 
 ## Loading the Data Into Memory
 
-We start the tidying process from the manually cleaned data set
-(`data/manually-cleaned.csv`) since it is structured and coded appropriately.
-Explanations for the various stages of the study data are available in the data
-directory README file (`data/README.md`).
+We start the tidying process from the available processed data set since it has
+been structured and has been through a minimal, but necessary, manual data
+cleaning process.
 
 ```{r}
-df <- read.csv('../data/data/processed/processed.csv', header=TRUE, skipNul=TRUE,
-               na.strings=c("","NA"))
+df <- read.csv('../data/data/processed/processed.csv', header=TRUE,
+               skipNul=TRUE, na.strings=c("","NA"))
 stopifnot(identical(dim(df)+0, c(5057, 490)))
-str(df, list.len=5)
-summary(df)
+str(df, list.len=12)
 ```
 
 ## Applying Readable Column Names
 
 A list of improved column names focused on readability has been provided in the
-reference directory (`references/readable-column-names.csv`). Let's load and
-apply these updated names to our data frame.
+reference directory. Let's load and apply these updated names to our data frame.
 
 ```{r}
-new_col_names <- readr::read_lines('../references/readable-column-names.csv')
-stopifnot(identical(length(new_col_names)+0, c(490)))
-colnames(df) <- new_col_names
-head(colnames(df), n=5)
+colnames(df) <- readr::read_lines('../references/readable-column-names.txt')
+str(df, list.len=12)
 ```
 
-## Dropping Unnecessary Rows
+## Drop All Non-Applicable Entries
 
-Drop rows for entries that did not complete the treatment response phase of the
-study (i.e., phase 2).
+We can drop all entries where:
+
+* The treatment response phase (i.e., phase 2) is incomplete.
+* Fear/anxiety is not indicated.
 
 ```{r}
 df <- df %>%
-  filter(phase_2_complete == 2)
-stopifnot(identical(dim(df)+0, c(2322, 490)))
-dim(df)
+  filter(phase_2_complete == 2) %>%
+  filter(has_exhibited_fear_anxiety == 1)
+stopifnot(identical(dim(df)+0, c(1308, 490)))
 ```
 
 ## Dropping Unnecessary Columns
@@ -64,14 +61,10 @@ reference directory (`references/columns-for-tidying.csv`). Let's load this file
 and drop any unmentioned columns.
 
 ```{r}
-df <- df %>% select(one_of(
-  readr::read_lines('../references/columns-for-tidying.csv')))
-stopifnot(identical(dim(df)+0, c(2322, 274)))
-dim(df)
+df <- df %>% select(
+  readr::read_lines('../references/columns-for-tidying.txt'))
+stopifnot(identical(dim(df)+0, c(1308, 273)))
 ```
-
-The number of columns is reduced by about 43% and the number of rows remains the
-same (as expected).
 
 # Adjusting Data Types
 
@@ -114,29 +107,9 @@ df$acquisition_source <- as.factor(df$acquisition_source)
 df$prof_with_best_results <- as.factor(df$prof_with_best_results)
 df$non_improve_ultimate_outcome <- as.factor(df$non_improve_ultimate_outcome)
 df$owner_id <- as.factor(df$owner_id)
-#df$valium_type <- as.factor(df$valium_type)
-#df$other_drug_desc <- as.factor(df$other_drug_desc)
 
 str(df, list.len=5)
 ```
-
-# Drop Entries Without Fear/Anxiety
-
-For this study we are investigating fear and anxiety, therefore, we only need to
-retain entries relevant to that goal. We use the fear/anxiety binary indicator
-to determine which entries should be kept.
-
-```{r}
-df <- df %>%
-  filter(has_exhibited_fear_anxiety == 1) %>%
-  select(-has_exhibited_fear_anxiety)
-stopifnot(identical(dim(df)+0, c(1308, 275)))
-dim(df)
-```
-
-We see that there are entries for 1305 fearful and/or anxious dogs in the data
-set and the column count has decremented to 273 as a result of dropping the
-fear/anxiety indicator.
 
 # Drop Unused Factor Levels
 
@@ -153,7 +126,11 @@ Take a last look at the data before saving it to disk.
 
 ```{r}
 dim(df)
+
+old_max_print <- getOption("max.print")
+options(max.print=.Machine$integer.max)
 summary(df)
+options(max.print=old_max_print)
 ```
 
 # Saving the Tidy Data
@@ -162,6 +139,6 @@ Save the data to a file in the data directory using RDS format so that the data
 types are stored and the resulting file is compressed.
 
 ```{r}
-dir.create(path='../build/', showWarnings=F)
+dir.create(path='../build/', showWarnings=FALSE)
 saveRDS(df, '../build/tidy.Rds')
 ```
