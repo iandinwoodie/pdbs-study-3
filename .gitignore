@@ -3,6 +3,9 @@
 # macOS Finder artifacts
 .DS_Store
 
+# Created binaries
+build/
+
 ### RStudio ###
 
 *.Rds
