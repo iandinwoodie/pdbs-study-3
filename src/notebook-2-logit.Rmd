@@ -22,8 +22,8 @@ set.seed(1)
 Load the raw data and verify the expected dimensions.
 
 ```{r}
-df <- readRDS('../data/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1308, 275)))
+df <- readRDS('../build/tidy.Rds')
+stopifnot(identical(dim(df)+0, c(1308, 273)))
 str(df, list.len=5)
 ```
 
@@ -47,7 +47,7 @@ df$has_leadership <- ifelse(df$behav_mod_strategy_used==4, 1, 0)
 df$has_leadership[is.na(df$has_leadership)] <- 0
 df$has_leadership <- as.integer(df$has_leadership)
 df <- subset(df, select=-behav_mod_strategy_used)
-#stopifnot(identical(dim(df)+0, c(1308, 276)))
+stopifnot(identical(dim(df)+0, c(1308, 276)))
 
 # Correct training method entries.
 # We consider dogs trained with any form of punishment to be excluded from a
@@ -59,12 +59,12 @@ df$has_reward_based_training <- ifelse(df$has_punish_based_training==1, 0,
                                        df$has_reward_based_training)
 df <- subset(df, select=-c(has_combo_based_training,
                            has_compulsion_based_training))
-#stopifnot(identical(dim(df)+0, c(1308, 274)))
+stopifnot(identical(dim(df)+0, c(1308, 274)))
 
 # Drop clicker/whistle from equipment since it is present in the behavior
 # techniques.
 df <- subset(df, select=-has_clicker)
-#stopifnot(identical(dim(df)+0, c(1308, 273)))
+stopifnot(identical(dim(df)+0, c(1308, 273)))
 
 # TODO: explain the lines below (68-71)
 df$is_trainer_credentialed <- ifelse(df$is_trainer_credentialed == 1, 1, 0)
@@ -139,7 +139,7 @@ df$fa_overall_rating <- rowMeans(
 summary(df$fa_overall_rating)
 
 #str(df)
-stopifnot(identical(dim(df)+0, c(1308, 280)))
+stopifnot(identical(dim(df)+0, c(1308, 278)))
 
 # Condense punishing devices into a single column.
 df$has_punishment_device <- ifelse(
@@ -273,7 +273,7 @@ pattern <- paste(c(predictors, outcomes), collapse='|')
 idx <- grep(pattern, names(df))
 df <- df[, idx]
 dim(df)
-#stopifnot(identical(dim(df)+0, c(1305, 83)))
+stopifnot(identical(dim(df)+0, c(1308, 75)))
 ```
 
 All remaining columns except for the response to treatment for aggression scores
@@ -336,7 +336,7 @@ Get the number of dogs that used equipment:
 df <- df[!is.na(df$is_male),]
 df <- df[!is.na(df$is_neutered),]
 summary(df)
-#stopifnot(identical(dim(df)+0, c(1296, 83)))
+stopifnot(identical(dim(df)+0, c(1299, 75)))
 ```
 
 General rule of thumb for logistic regression is that each variable should have
@@ -394,7 +394,7 @@ apply_min_xtab <- function(df, cutoff=10)
 }
 
 df <- apply_binary_response_criteria(df)
-#stopifnot(identical(dim(df)+0, c(1296, 77)))
+stopifnot(identical(dim(df)+0, c(1299, 69)))
 summary(df)
 ```
 
