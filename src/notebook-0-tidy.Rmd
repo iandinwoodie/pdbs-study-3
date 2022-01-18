@@ -63,7 +63,7 @@ and drop any unmentioned columns.
 ```{r}
 df <- df %>% select(
   readr::read_lines('../references/columns-for-tidying.txt'))
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+stopifnot(identical(dim(df)+0, c(1308, 269)))
 ```
 
 # Adjusting Data Types
@@ -81,6 +81,24 @@ df$weight <- as.numeric(df$weight)
 df %>% select(matches('_(wks|mos|yrs)$')) %>% str(list.len=5)
 ```
 
+### Unifying Timescales
+
+```{r}
+df <- df %>%
+  mutate(
+    cur_age_in_mos=ifelse(
+      is.na(cur_age_in_mos), cur_age_in_yrs*12, cur_age_in_mos),
+    cur_age_in_yrs=NULL) %>%
+  mutate(
+    acq_age_in_mos=ifelse(
+      is.na(acq_age_in_mos), acq_age_in_yrs*12, acq_age_in_mos),
+    acq_age_in_yrs=NULL) %>% 
+  mutate(
+    neuter_age_in_mos=ifelse(
+      is.na(neuter_age_in_mos), neuter_age_in_yrs*12, neuter_age_in_mos),
+    neuter_age_in_yrs=NULL)
+```
+
 ## Logical
 
 For some questions where a binary response was desired an additional "I don't
@@ -92,7 +110,8 @@ type logical.
 df <- df %>%
   mutate_at(vars(matches('^(is|has)_')), funs(replace(., . == 2, NA))) %>%
   mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.))) %>%
-  mutate(is_male = (sex == 1), .keep = "unused")
+  mutate(is_male=(sex==1), sex=NULL)
+
 df %>% select(matches('^(is|has)_')) %>% str(list.len=5)
 ```
 
@@ -122,6 +141,18 @@ df[] <- lapply(df, function(x) if(is.factor(x)) factor(x) else x)
 
 # Final Summary
 
+Verify that the tidy data set contains only the expected columns.
+
+```{r}
+expected_cols <- readr::read_lines('../references/expected-tidy-columns.txt')
+actual_cols <- colnames(df)
+set_diff <-setdiff(expected_cols, actual_cols)
+stopifnot(length(set_diff) == 0)
+set_diff = setdiff(actual_cols, expected_cols)
+stopifnot(length(set_diff) == 0)
+rm(set_diff, expected_cols, actual_cols)
+```
+
 Take a last look at the data before saving it to disk.
 
 ```{r}
@@ -131,6 +162,7 @@ old_max_print <- getOption("max.print")
 options(max.print=.Machine$integer.max)
 summary(df)
 options(max.print=old_max_print)
+rm(old_max_print)
 ```
 
 # Saving the Tidy Data
@@ -139,6 +171,8 @@ Save the data to a file in the data directory using RDS format so that the data
 types are stored and the resulting file is compressed.
 
 ```{r}
+#write.table(colnames(df), '../references/expected-tidy-columns.txt',
+#            row.names=FALSE, col.names=FALSE)
 dir.create(path='../build/', showWarnings=FALSE)
 saveRDS(df, '../build/tidy.Rds')
 ```

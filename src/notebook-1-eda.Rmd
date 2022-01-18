@@ -16,7 +16,7 @@ Load the tidy data from disk.
 
 ```{r}
 df <- readRDS('../build/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+stopifnot(identical(dim(df)+0, c(1308, 266)))
 str(df, list.len=5)
 ```
 
@@ -65,6 +65,32 @@ female_neutered_prop <- round(female_neutered_cnt / female_cnt * 100, 2)
 print(paste0("Females that are neutered: ", female_neutered_cnt, " (",
              female_neutered_prop, "%)"))
 rm(female_cnt, female_neutered_cnt, female_neutered_prop)
+```
+
+## Ages
+
+```{r}
+display_median_with_range <- function(col) {
+  col_min <- min(col, na.rm=TRUE)
+  col_max <- max(col, na.rm=TRUE)
+  col_median <- median(col, na.rm=TRUE)
+  col_cnt <- sum(!is.na(col))
+  print(paste0("median=", col_median, " (range: ", col_min, " to ", col_max,
+               ") (n=", col_cnt, ")"))
+}
+
+print("Age at time of study (in months)")
+display_median_with_range(df$cur_age_in_mos)
+```
+
+```{r}
+print("Age at time of acquisition (in months)")
+display_median_with_range(df$acq_age_in_mos)
+```
+
+```{r}
+print("Age at time of neuter (in months)")
+display_median_with_range(df$neuter_age_in_mos)
 ```
 
 ## Fear/Anxiety Frequencies

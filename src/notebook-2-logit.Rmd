@@ -34,19 +34,29 @@ TODO: Relocate this section to the tidy notebook.
 # We ignore levels 5 and 6 because they are irrelevant to the question.
 df$has_systematic_desen <- ifelse(df$behav_mod_strategy_used==1, 1, 0)
 df$has_systematic_desen[is.na(df$has_systematic_desen)] <- 0
-df$has_systematic_desen <- as.integer(df$has_systematic_desen)
+df$has_systematic_desen <- as.logical(df$has_systematic_desen)
+stopifnot(sum(df$has_systematic_desen) == 48)
+
 df$has_counter_conditioning <- ifelse(df$behav_mod_strategy_used==2, 1, 0)
 df$has_counter_conditioning[is.na(df$has_counter_conditioning)] <- 0
-df$has_counter_conditioning <- as.integer(df$has_counter_conditioning)
+df$has_counter_conditioning <- as.logical(df$has_counter_conditioning)
+stopifnot(sum(df$has_counter_conditioning) == 70)
+
 df$has_sd_and_cc <- ifelse(df$behav_mod_strategy_used==3, 1, 0)
 df$has_sd_and_cc[is.na(df$has_sd_and_cc)] <- 0
-df$has_sd_and_cc <- as.integer(df$has_sd_and_cc)
+df$has_sd_and_cc <- as.logical(df$has_sd_and_cc)
+stopifnot(sum(df$has_sd_and_cc) == 203)
+
 df$has_leadership <- ifelse(df$behav_mod_strategy_used==4, 1, 0)
 df$has_leadership[is.na(df$has_leadership)] <- 0
-df$has_leadership <- as.integer(df$has_leadership)
-df <- subset(df, select=-behav_mod_strategy_used)
-stopifnot(identical(dim(df)+0, c(1308, 278)))
+df$has_leadership <- as.logical(df$has_leadership)
+stopifnot(sum(df$has_leadership) == 30)
 
+df <- subset(df, select=-behav_mod_strategy_used)
+stopifnot(identical(dim(df)+0, c(1308, 276)))
+```
+
+```{r}
 # Correct training method entries.
 # We consider dogs trained with any form of punishment to be excluded from a
 # reward-only training style. We consider compulsion a form of punishment.
@@ -57,12 +67,12 @@ df$has_reward_based_training <- ifelse(df$has_punish_based_training==1, 0,
                                        df$has_reward_based_training)
 df <- subset(df, select=-c(has_combo_based_training,
                            has_compulsion_based_training))
-stopifnot(identical(dim(df)+0, c(1308, 276)))
+stopifnot(identical(dim(df)+0, c(1308, 274)))
 
 # Drop clicker/whistle from equipment since it is present in the behavior
 # techniques.
 df <- subset(df, select=-has_clicker)
-stopifnot(identical(dim(df)+0, c(1308, 275)))
+stopifnot(identical(dim(df)+0, c(1308, 273)))
 
 # TODO: explain the lines below (68-71)
 df$is_trainer_credentialed <- ifelse(df$is_trainer_credentialed == 1, 1, 0)
@@ -137,7 +147,7 @@ df$fa_overall_rating <- rowMeans(
 summary(df$fa_overall_rating)
 
 #str(df)
-stopifnot(identical(dim(df)+0, c(1308, 280)))
+stopifnot(identical(dim(df)+0, c(1308, 278)))
 
 # Condense punishing devices into a single column.
 df$has_punishment_device <- ifelse(
