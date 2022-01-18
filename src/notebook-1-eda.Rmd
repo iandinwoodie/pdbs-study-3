@@ -22,4 +22,47 @@ str(df, list.len=5)
 
 # Descriptive Stats
 
-TODO
+## Households
+
+Get the nunber of participating dog owners.
+
+```{r}
+length(unique(df$owner_id))
+```
+
+Determine the median number of dogs per household.
+
+```{r}
+summary(as.data.frame(table(df$owner_id))$Freq)
+```
+
+## Gender and Neuter Status
+
+```{r}
+tbl <- as.numeric(table(df$is_male))
+male_cnt <- tbl[2]
+female_cnt <- tbl[1]
+rm(tbl)
+
+male_prop <- round(male_cnt / (male_cnt + female_cnt) * 100, 2)
+print(paste0("Males: ", male_cnt, " (", male_prop, "%)"))
+print(paste0("Females: ", female_cnt, " (", 100-male_prop, "%)"))
+rm(male_prop)
+```
+
+```{r}
+tbl <- xtabs(~is_male+is_neutered,data=df)
+male_neutered_cnt <- tbl[4]
+female_neutered_cnt <- tbl[3]
+rm(tbl)
+
+male_neutered_prop <- round(male_neutered_cnt / male_cnt * 100, 2)
+print(paste0("Males that are neutered: ", male_neutered_cnt, " (",
+             male_neutered_prop, "%)"))
+rm(male_cnt, male_neutered_cnt, male_neutered_prop)
+
+female_neutered_prop <- round(female_neutered_cnt / female_cnt * 100, 2)
+print(paste0("Females that are neutered: ", female_neutered_cnt, " (",
+             female_neutered_prop, "%)"))
+rm(female_cnt, female_neutered_cnt, female_neutered_prop)
+```
