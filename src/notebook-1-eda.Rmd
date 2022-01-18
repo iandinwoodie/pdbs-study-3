@@ -66,3 +66,85 @@ print(paste0("Females that are neutered: ", female_neutered_cnt, " (",
              female_neutered_prop, "%)"))
 rm(female_cnt, female_neutered_cnt, female_neutered_prop)
 ```
+
+## Fear/Anxiety Frequencies
+
+```{r}
+# Bin fear/anxiety types into categories.
+# bins: {inanimate, animate, situational, generalized, ptsd}
+# 2 + 1 + 5 + 1 + 1 = 10
+df$thunderstorm_phobia_rating <- as.integer(df$thunderstorm_phobia_rating)
+df$non_thunderstorm_noise_phobia_rating <- as.integer(df$non_thunderstorm_noise_phobia_rating)
+df$inanimate_rating <- rowMeans(
+  subset(df, select = c(
+    thunderstorm_phobia_rating,
+    non_thunderstorm_noise_phobia_rating)), na.rm = TRUE)
+print(count(df$inanimate_rating > 0))
+print(round(614 / 1308 * 100, 2))
+```
+
+```{r}
+df$fear_of_other_dogs_rating <- as.integer(df$fear_of_other_dogs_rating)
+df$animate_rating <- rowMeans(
+  subset(df, select = c(fear_of_other_dogs_rating)), na.rm = TRUE)
+print(count(df$animate_rating > 0))
+print(round(319 / 1308 * 100, 2))
+```
+
+```{r}
+df$crowd_phobia_rating <- as.integer(df$crowd_phobia_rating)
+df$situation_anxiety_rating <- as.integer(df$situation_anxiety_rating)
+df$veterinary_anxiety_rating <- as.integer(df$veterinary_anxiety_rating)
+df$separation_anxiety_rating <- as.integer(df$separation_anxiety_rating)
+df$anxiety_in_the_car_rating <- as.integer(df$anxiety_in_the_car_rating)
+df$situational_rating <- rowMeans(
+  subset(df, select = c(
+    crowd_phobia_rating,
+    situation_anxiety_rating,
+    veterinary_anxiety_rating,
+    separation_anxiety_rating,
+    anxiety_in_the_car_rating
+  )), na.rm = TRUE)
+print(count(df$situational_rating > 0))
+print(round(1079 / 1308 * 100, 2))
+```
+
+```{r}
+df$general_anxiety_rating <- as.integer(df$general_anxiety_rating)
+df$generalized_rating <- rowMeans(
+  subset(df, select = c(general_anxiety_rating)), na.rm = TRUE)
+print(count(df$generalized_rating > 0))
+print(round(273 / 1308 * 100, 2))
+```
+
+```{r}
+df$ptsd_rating <- as.integer(df$ptsd_rating)
+df$ptsd_rating <- rowMeans(subset(df, select = c(ptsd_rating)), na.rm = TRUE)
+print(count(df$ptsd_rating > 0))
+print(round(132 / 1308 * 100, 2))
+```
+
+```{r}
+df$other_fear_anxiety_rating <- as.integer(df$other_fear_anxiety_rating)
+df$fa_overall_rating <- rowMeans(
+  subset(df, select = c(
+    thunderstorm_phobia_rating,
+    non_thunderstorm_noise_phobia_rating,
+    fear_of_other_dogs_rating,
+    crowd_phobia_rating,
+    situation_anxiety_rating,
+    veterinary_anxiety_rating,
+    separation_anxiety_rating,
+    anxiety_in_the_car_rating,
+    general_anxiety_rating,
+    ptsd_rating,
+    other_fear_anxiety_rating
+  )), na.rm = TRUE)
+count(df$fa_overall_rating)
+print(count(df$fa_overall_rating >= 0))
+print(round(1252 / 1308 * 100, 2))
+```
+
+
+
+
