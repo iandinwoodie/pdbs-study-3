@@ -357,10 +357,11 @@ types are stored and the resulting file is compressed.
 #            row.names=FALSE, col.names=FALSE)
 dir.create(path='../build/', showWarnings=FALSE)
 saveRDS(df, '../build/tidy.Rds')
+rm(df)
 ```
 
-# Clean Up Workspace
+# Save Session Info
 
 ```{r}
-rm(list = ls())
+sessionInfo()
 ```
