@@ -629,3 +629,9 @@ for (i in 1:nrow(df_results)) {
 
 knitr::kable(df_results)
 ```
+
+# Save Session Info
+
+```{r}
+sessionInfo()
+```

@@ -171,6 +171,8 @@ print(count(df$fa_overall_rating >= 0))
 print(round(1252 / 1308 * 100, 2))
 ```
 
+# Save Session Info
 
-
-
+```{r}
+sessionInfo()
+```
