@@ -131,7 +131,13 @@ proportion <- round(cnt / dim(df)[1] * 100, 2)
 print(paste0("fa_overall=", cnt, " (", proportion, "%)"))
 ```
 
+# Acquisition Source
 
+```{r}
+  df %>%
+      group_by(purebred_breed) %>%
+      summarise(n=n()) %>% arrange(desc(n))
+```
 
 # Save Session Info
 

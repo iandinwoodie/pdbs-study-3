@@ -112,6 +112,16 @@ df$prof_with_best_results <- as.factor(df$prof_with_best_results)
 df$non_improve_ultimate_outcome <- as.factor(df$non_improve_ultimate_outcome)
 df$owner_id <- as.factor(df$owner_id)
 
+levels(df$acquisition_source) <- list(
+  "rescue"=c("online (rescue)", "shelter/rescue"),
+  "breeder"=c("online (purchase)", "breeder"),
+  "pet store"=c("pet store"),
+  "self-bred"=c("self-bred"),
+  "friend/family"=c("friend/family"),
+  "found"=c("found"),
+  "other"=c("other")
+)
+
 str(df, list.len=5)
 ```
 
@@ -366,7 +376,3 @@ rm(df)
 ```{r}
 sessionInfo()
 ```
-
-
-
-
