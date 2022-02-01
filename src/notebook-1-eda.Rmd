@@ -150,6 +150,64 @@ df %>%
   summarise(n=n()) %>%
   arrange(desc(n))
 ```
+# Breakdown of Professionals
+
+```{r}
+cnt <- sum(df$has_seen_professional==TRUE, na.rm=TRUE)
+proportion <- round(cnt / dim(df)[1] * 100, 2)
+print(paste0("sought professional help: ", cnt, " (", proportion, ")%"))
+```
+
+## Tainers
+
+```{r}
+df_t <- df %>%
+  filter(has_seen_trainer)
+t_cnt <- dim(df_t)[1]
+proportion <- round(t_cnt / dim(df)[1] * 100, 2)
+print(paste0("sought trainer help: ", t_cnt, " (", proportion, ")%"))
+```
+
+```{r}
+cnt <- sum(df$has_seen_multiple_trainers==TRUE, na.rm=TRUE)
+proportion <- round(cnt / dim(df_t)[1] * 100, 2)
+print(paste0("sought multiple trainers: ", cnt, " (", proportion, ")%"))
+```
+
+```{r}
+df_t$trainers_count[df_t$has_seen_trainer] <-
+  ifelse(df_t$has_seen_multiple_trainers, df_t$trainers_count, 1)
+print("median trainers seen")
+display_median_with_range(df_t$trainers_count)
+```
+
+```{r}
+cred_cnt <- sum(df_t$is_trainer_credentialed==TRUE, na.rm=TRUE)
+proportion <- round(cred_cnt / dim(df_t)[1] * 100, 2)
+print(paste0("sought cred. trainer: ", cred_cnt, " (", proportion, ")%"))
+```
+
+```{r}
+cnt <- sum(df_t$is_trainer_cpdt_credentialed==TRUE, na.rm=TRUE)
+proportion <- round(cnt / cred_cnt * 100, 2)
+print(paste0("sought CPDT trainer: ", cnt, " (", proportion, ")%"))
+```
+
+## Consultants
+
+```{r}
+c_cnt = sum(df$has_seen_consultant==TRUE, na.rm=TRUE)
+proportion = round(c_cnt / dim(df)[1] * 100, 2)
+print(paste0("sought behav. consultant help: ", c_cnt, " (", proportion, ")%"))
+```
+
+## Veterinarians
+
+```{r}
+v_cnt = sum(df$has_seen_veterinarian==TRUE, na.rm=TRUE)
+proportion = round(v_cnt / dim(df)[1] * 100, 2)
+print(paste0("sought veterinarian help: ", v_cnt, " (", proportion, ")%"))
+```
 
 # Save Session Info
 
