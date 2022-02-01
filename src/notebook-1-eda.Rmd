@@ -97,37 +97,38 @@ display_median_with_range(df$neuter_age_in_mos)
 
 ```{r}
 cnt <- sum(!is.na(df$inanimate_rating))
-proportion <- round(cnt / dim(df)[1] * 100, 2)
+total_rows <- dim(df)[1]
+proportion <- round(cnt / total_rows * 100, 2)
 print(paste0("inanimate=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
 cnt <- sum(!is.na(df$animate_rating))
-proportion <- round(cnt / dim(df)[1] * 100, 2)
+proportion <- round(cnt / total_rows * 100, 2)
 print(paste0("animate=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
 cnt <- sum(!is.na(df$situational_rating))
-proportion <- round(cnt / dim(df)[1] * 100, 2)
+proportion <- round(cnt / total_rows * 100, 2)
 print(paste0("situational=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
 cnt <- sum(!is.na(df$generalized_rating))
-proportion <- round(cnt / dim(df)[1] * 100, 2)
+proportion <- round(cnt / total_rows * 100, 2)
 print(paste0("generalized=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
 cnt <- sum(!is.na(df$ptsd_rating))
-proportion <- round(cnt / dim(df)[1] * 100, 2)
+proportion <- round(cnt / total_rows * 100, 2)
 print(paste0("ptsd=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
 cnt <- sum(!is.na(df$fa_overall_rating))
-proportion <- round(cnt / dim(df)[1] * 100, 2)
+proportion <- round(cnt / total_rows * 100, 2)
 print(paste0("fa_overall=", cnt, " (", proportion, "%)"))
 ```
 
@@ -154,7 +155,7 @@ df %>%
 
 ```{r}
 cnt <- sum(df$has_seen_professional==TRUE, na.rm=TRUE)
-proportion <- round(cnt / dim(df)[1] * 100, 2)
+proportion <- round(cnt / total_rows * 100, 2)
 print(paste0("sought professional help: ", cnt, " (", proportion, ")%"))
 ```
 
@@ -163,14 +164,14 @@ print(paste0("sought professional help: ", cnt, " (", proportion, ")%"))
 ```{r}
 df_t <- df %>%
   filter(has_seen_trainer)
-t_cnt <- dim(df_t)[1]
-proportion <- round(t_cnt / dim(df)[1] * 100, 2)
-print(paste0("sought trainer help: ", t_cnt, " (", proportion, ")%"))
+t_rows <- dim(df_t)[1]
+proportion <- round(t_rows / total_rows * 100, 2)
+print(paste0("sought trainer help: ", t_rows, " (", proportion, ")%"))
 ```
 
 ```{r}
 cnt <- sum(df$has_seen_multiple_trainers==TRUE, na.rm=TRUE)
-proportion <- round(cnt / dim(df_t)[1] * 100, 2)
+proportion <- round(cnt / t_rows * 100, 2)
 print(paste0("sought multiple trainers: ", cnt, " (", proportion, ")%"))
 ```
 
@@ -183,7 +184,7 @@ display_median_with_range(df_t$trainers_count)
 
 ```{r}
 cred_cnt <- sum(df_t$is_trainer_credentialed==TRUE, na.rm=TRUE)
-proportion <- round(cred_cnt / dim(df_t)[1] * 100, 2)
+proportion <- round(cred_cnt / t_rows * 100, 2)
 print(paste0("sought cred. trainer: ", cred_cnt, " (", proportion, ")%"))
 ```
 
@@ -193,12 +194,54 @@ proportion <- round(cnt / cred_cnt * 100, 2)
 print(paste0("sought CPDT trainer: ", cnt, " (", proportion, ")%"))
 ```
 
+
+```{r}
+rm(df_t, t_rows, cred_cnt)
+```
+
 ## Consultants
 
 ```{r}
 c_cnt = sum(df$has_seen_consultant==TRUE, na.rm=TRUE)
 proportion = round(c_cnt / dim(df)[1] * 100, 2)
 print(paste0("sought behav. consultant help: ", c_cnt, " (", proportion, ")%"))
+```
+
+```{r}
+df_c <- df %>%
+  filter(has_seen_consultant)
+c_rows <- dim(df_c)[1]
+proportion <- round(c_rows / total_rows * 100, 2)
+print(paste0("sought consultant help: ", c_rows, " (", proportion, ")%"))
+```
+
+```{r}
+cnt <- sum(df$has_seen_multiple_consultants==TRUE, na.rm=TRUE)
+proportion <- round(cnt / c_rows * 100, 2)
+print(paste0("sought multiple consultants: ", cnt, " (", proportion, ")%"))
+```
+
+```{r}
+df_c$trainers_count[df_c$has_seen_consultant] <-
+  ifelse(df_c$has_seen_multiple_consultants, df_c$consultants_count, 1)
+print("median consultants seen")
+display_median_with_range(df_c$consultants_count)
+```
+
+```{r}
+cred_cnt <- sum(df_c$is_consultant_credentialed==TRUE, na.rm=TRUE)
+proportion <- round(cred_cnt / c_rows * 100, 2)
+print(paste0("sought cred. consultant: ", cred_cnt, " (", proportion, ")%"))
+```
+
+```{r}
+print("Count of consultant credentials")
+print(paste0("CBCC-KA: ", sum(df_c$is_consultant_cbcc_ka, na.rm=TRUE)))
+print(paste0("other: ",
+             sum(df_c$is_consultant_credentialed_other,na.rm=TRUE)))
+print(paste0("DACVB: ", sum(df_c$is_consultant_dacvb, na.rm=TRUE)))
+print(paste0("CDBC: ", sum(df_c$is_consultant_cdbc, na.rm=TRUE)))
+print(paste0("ACAAB/CAAB: ", sum(df_c$is_consultant_acaab, na.rm=TRUE)))
 ```
 
 ## Veterinarians
