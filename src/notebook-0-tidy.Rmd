@@ -26,8 +26,9 @@ cleaning process.
 ```{r}
 df <- read.csv('../data/data/processed/processed.csv', header=TRUE,
                skipNul=TRUE, na.strings=c("","NA"))
-stopifnot(identical(dim(df)+0, c(5057, 490)))
-str(df, list.len=12)
+stopifnot(identical(dim(df)+0, c(5057, 489)))
+#str(df, list.len=12)
+str(df)
 ```
 
 ## Applying Readable Column Names
@@ -38,7 +39,7 @@ reference directory. Let's load and apply these updated names to our data frame.
 ```{r}
 colnames(df) <- readr::read_lines('../references/readable-column-names.txt')
 str(df, list.len=12)
-stopifnot(identical(dim(df)+0, c(5057, 490))) # No change in data frame shape.
+stopifnot(identical(dim(df)+0, c(5057, 489))) # No change in data frame shape.
 ```
 
 ## Drop All Non-Applicable Entries
@@ -52,7 +53,7 @@ We can drop all entries where:
 df <- df %>%
   filter(phase_2_complete == 2) %>%
   filter(has_exhibited_fear_anxiety == 1)
-stopifnot(identical(dim(df)+0, c(1308, 490))) # Expect sig. reduction of rows.
+stopifnot(identical(dim(df)+0, c(1308, 489))) # Expect sig. reduction of rows.
 ```
 
 ## Dropping Unnecessary Columns
@@ -64,7 +65,7 @@ and drop any unmentioned columns.
 ```{r}
 df <- df %>% select(
   readr::read_lines('../references/columns-for-tidying.txt'))
-stopifnot(identical(dim(df)+0, c(1308, 269))) # Expect sig. reduction of cols.
+stopifnot(identical(dim(df)+0, c(1308, 268))) # Expect sig. reduction of cols.
 ```
 
 # Adjusting Data Types
@@ -80,7 +81,7 @@ df <- df %>%
 df$weight <- as.numeric(df$weight)
 
 df %>% select(matches('_(wks|mos|yrs)$')) %>% str(list.len=5)
-stopifnot(identical(dim(df)+0, c(1308, 269))) # No change in dimensions.
+stopifnot(identical(dim(df)+0, c(1308, 268))) # No change in dimensions.
 ```
 
 ## Logical
@@ -105,7 +106,7 @@ df %>% select(matches('^(is|has)_')) %>% str(list.len=5)
 df <- df %>%
   mutate_at(vars(matches('_rating$')), funs(factor(., levels=c(1:7)))) %>%
   mutate_at(vars(matches('_units$')), funs(as.factor(.)))
-df$purebred_akc_breed <- as.factor(df$purebred_akc_breed)
+df$purebred_breed <- as.factor(df$purebred_breed)
 df$acquisition_source <- as.factor(df$acquisition_source)
 df$prof_with_best_results <- as.factor(df$prof_with_best_results)
 df$non_improve_ultimate_outcome <- as.factor(df$non_improve_ultimate_outcome)
@@ -139,7 +140,7 @@ df <- df %>%
     neuter_age_in_mos=ifelse(
       is.na(neuter_age_in_mos), neuter_age_in_yrs*12, neuter_age_in_mos),
     neuter_age_in_yrs=NULL)
-stopifnot(identical(dim(df)+0, c(1308, 266))) # Col count reduced by 3.
+stopifnot(identical(dim(df)+0, c(1308, 265))) # Col count reduced by 3.
 ```
 
 # Binning Response Ratings
@@ -190,7 +191,7 @@ stopifnot(min(df$fa_overall_rating, na.rm=TRUE) == 1.000)
 stopifnot(max(df$fa_overall_rating, na.rm=TRUE) == 7.000)
 stopifnot(median(df$fa_overall_rating, na.rm=TRUE) == 4.750)
 stopifnot(round(mean(df$fa_overall_rating, na.rm=TRUE), 3) == 4.803)
-stopifnot(identical(dim(df)+0, c(1308, 266))) # Col count delta = -1 + 1 = 0.
+stopifnot(identical(dim(df)+0, c(1308, 265))) # Col count delta = -1 + 1 = 0.
 ```
 
 ## Subtype Response Ratings
@@ -224,7 +225,7 @@ stopifnot(min(df$inanimate_rating, na.rm=TRUE) == 1.000)
 stopifnot(max(df$inanimate_rating, na.rm=TRUE) == 7.000)
 stopifnot(median(df$inanimate_rating, na.rm=TRUE) == 4.500)
 stopifnot(round(mean(df$inanimate_rating, na.rm=TRUE), 3) == 4.612)
-stopifnot(identical(dim(df)+0, c(1308, 265))) # Col count delta = -2 + 1 = -1.
+stopifnot(identical(dim(df)+0, c(1308, 264))) # Col count delta = -2 + 1 = -1.
 ```
 
 ### Animate Response Rating
@@ -242,7 +243,7 @@ stopifnot(min(df$animate_rating, na.rm=TRUE) == 1.000)
 stopifnot(max(df$animate_rating, na.rm=TRUE) == 7.000)
 stopifnot(median(df$animate_rating, na.rm=TRUE) == 5.000)
 stopifnot(round(mean(df$animate_rating, na.rm=TRUE), 3) == 5.078)
-stopifnot(identical(dim(df)+0, c(1308, 265))) # Col count delta = -1 + 1 = 0.
+stopifnot(identical(dim(df)+0, c(1308, 264))) # Col count delta = -1 + 1 = 0.
 ```
 
 ### Situational Response Rating
@@ -281,7 +282,7 @@ stopifnot(min(df$situational_rating, na.rm=TRUE) == 1.000)
 stopifnot(max(df$situational_rating, na.rm=TRUE) == 7.000)
 stopifnot(median(df$situational_rating, na.rm=TRUE) == 5.000)
 stopifnot(round(mean(df$situational_rating, na.rm=TRUE), 3) == 4.881)
-stopifnot(identical(dim(df)+0, c(1308, 261))) # Col count delta = -5 + 1 = -4.
+stopifnot(identical(dim(df)+0, c(1308, 260))) # Col count delta = -5 + 1 = -4.
 ```
 
 ### Generalized Response Rating
@@ -300,7 +301,7 @@ stopifnot(min(df$generalized_rating, na.rm=TRUE) == 1.000)
 stopifnot(max(df$generalized_rating, na.rm=TRUE) == 6.000)
 stopifnot(median(df$generalized_rating, na.rm=TRUE) == 5.000)
 stopifnot(round(mean(df$generalized_rating, na.rm=TRUE), 3) == 4.454)
-stopifnot(identical(dim(df)+0, c(1308, 261))) # Col count delta = -1 + 1 = 0.
+stopifnot(identical(dim(df)+0, c(1308, 260))) # Col count delta = -1 + 1 = 0.
 ```
 
 ### Post-Traumatic Stress Disorder (PTSD) Response Rating
@@ -316,7 +317,7 @@ stopifnot(min(df$ptsd_rating, na.rm=TRUE) == 1.000)
 stopifnot(max(df$ptsd_rating, na.rm=TRUE) == 6.000)
 stopifnot(median(df$ptsd_rating, na.rm=TRUE) == 4.000)
 stopifnot(round(mean(df$ptsd_rating, na.rm=TRUE), 3) == 4.205)
-stopifnot(identical(dim(df)+0, c(1308, 261))) # No change in data frame shape.
+stopifnot(identical(dim(df)+0, c(1308, 260))) # No change in data frame shape.
 ```
 
 
@@ -365,3 +366,7 @@ rm(df)
 ```{r}
 sessionInfo()
 ```
+
+
+
+

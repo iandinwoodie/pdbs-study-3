@@ -9,8 +9,7 @@ zip_code
 name
 is_purebred
 is_akc
-purebred_akc_breed
-purebred_non_akc_breed
+purebred_breed
 is_mixbred
 mixbred_breed_composition
 acquisition_source

@@ -16,7 +16,7 @@ Load the tidy data from disk.
 
 ```{r}
 df <- readRDS('../build/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1308, 266)))
+stopifnot(identical(dim(df)+0, c(1308, 260)))
 str(df, list.len=5)
 ```
 
@@ -96,80 +96,42 @@ display_median_with_range(df$neuter_age_in_mos)
 ## Fear/Anxiety Frequencies
 
 ```{r}
-# Bin fear/anxiety types into categories.
-# bins: {inanimate, animate, situational, generalized, ptsd}
-# 2 + 1 + 5 + 1 + 1 = 10
-df$thunderstorm_phobia_rating <- as.integer(df$thunderstorm_phobia_rating)
-df$non_thunderstorm_noise_phobia_rating <- as.integer(df$non_thunderstorm_noise_phobia_rating)
-df$inanimate_rating <- rowMeans(
-  subset(df, select = c(
-    thunderstorm_phobia_rating,
-    non_thunderstorm_noise_phobia_rating)), na.rm = TRUE)
-print(count(df$inanimate_rating > 0))
-print(round(614 / 1308 * 100, 2))
+cnt <- sum(!is.na(df$inanimate_rating))
+proportion <- round(cnt / dim(df)[1] * 100, 2)
+print(paste0("inanimate=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
-df$fear_of_other_dogs_rating <- as.integer(df$fear_of_other_dogs_rating)
-df$animate_rating <- rowMeans(
-  subset(df, select = c(fear_of_other_dogs_rating)), na.rm = TRUE)
-print(count(df$animate_rating > 0))
-print(round(319 / 1308 * 100, 2))
+cnt <- sum(!is.na(df$animate_rating))
+proportion <- round(cnt / dim(df)[1] * 100, 2)
+print(paste0("animate=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
-df$crowd_phobia_rating <- as.integer(df$crowd_phobia_rating)
-df$situation_anxiety_rating <- as.integer(df$situation_anxiety_rating)
-df$veterinary_anxiety_rating <- as.integer(df$veterinary_anxiety_rating)
-df$separation_anxiety_rating <- as.integer(df$separation_anxiety_rating)
-df$anxiety_in_the_car_rating <- as.integer(df$anxiety_in_the_car_rating)
-df$situational_rating <- rowMeans(
-  subset(df, select = c(
-    crowd_phobia_rating,
-    situation_anxiety_rating,
-    veterinary_anxiety_rating,
-    separation_anxiety_rating,
-    anxiety_in_the_car_rating
-  )), na.rm = TRUE)
-print(count(df$situational_rating > 0))
-print(round(1079 / 1308 * 100, 2))
+cnt <- sum(!is.na(df$situational_rating))
+proportion <- round(cnt / dim(df)[1] * 100, 2)
+print(paste0("situational=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
-df$general_anxiety_rating <- as.integer(df$general_anxiety_rating)
-df$generalized_rating <- rowMeans(
-  subset(df, select = c(general_anxiety_rating)), na.rm = TRUE)
-print(count(df$generalized_rating > 0))
-print(round(273 / 1308 * 100, 2))
+cnt <- sum(!is.na(df$generalized_rating))
+proportion <- round(cnt / dim(df)[1] * 100, 2)
+print(paste0("generalized=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
-df$ptsd_rating <- as.integer(df$ptsd_rating)
-df$ptsd_rating <- rowMeans(subset(df, select = c(ptsd_rating)), na.rm = TRUE)
-print(count(df$ptsd_rating > 0))
-print(round(132 / 1308 * 100, 2))
+cnt <- sum(!is.na(df$ptsd_rating))
+proportion <- round(cnt / dim(df)[1] * 100, 2)
+print(paste0("ptsd=", cnt, " (", proportion, "%)"))
 ```
 
 ```{r}
-df$other_fear_anxiety_rating <- as.integer(df$other_fear_anxiety_rating)
-df$fa_overall_rating <- rowMeans(
-  subset(df, select = c(
-    thunderstorm_phobia_rating,
-    non_thunderstorm_noise_phobia_rating,
-    fear_of_other_dogs_rating,
-    crowd_phobia_rating,
-    situation_anxiety_rating,
-    veterinary_anxiety_rating,
-    separation_anxiety_rating,
-    anxiety_in_the_car_rating,
-    general_anxiety_rating,
-    ptsd_rating,
-    other_fear_anxiety_rating
-  )), na.rm = TRUE)
-count(df$fa_overall_rating)
-print(count(df$fa_overall_rating >= 0))
-print(round(1252 / 1308 * 100, 2))
+cnt <- sum(!is.na(df$fa_overall_rating))
+proportion <- round(cnt / dim(df)[1] * 100, 2)
+print(paste0("fa_overall=", cnt, " (", proportion, "%)"))
 ```
+
+
 
 # Save Session Info
 
