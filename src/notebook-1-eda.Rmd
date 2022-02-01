@@ -134,9 +134,21 @@ print(paste0("fa_overall=", cnt, " (", proportion, "%)"))
 # Acquisition Source
 
 ```{r}
-  df %>%
-      group_by(purebred_breed) %>%
-      summarise(n=n()) %>% arrange(desc(n))
+df %>%
+  filter(!is.na(acquisition_source)) %>%
+  group_by(acquisition_source) %>%
+  summarise(n=n()) %>%
+  arrange(desc(n))
+```
+
+# Purebred Breed
+
+```{r}
+df %>%
+  filter(!is.na(purebred_breed)) %>%
+  group_by(purebred_breed) %>%
+  summarise(n=n()) %>%
+  arrange(desc(n))
 ```
 
 # Save Session Info

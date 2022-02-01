@@ -364,8 +364,6 @@ Save the data to a file in the data directory using RDS format so that the data
 types are stored and the resulting file is compressed.
 
 ```{r}
-#write.table(colnames(df), '../references/expected-tidy-columns.txt',
-#            row.names=FALSE, col.names=FALSE)
 dir.create(path='../build/', showWarnings=FALSE)
 saveRDS(df, '../build/tidy.Rds')
 rm(df)
