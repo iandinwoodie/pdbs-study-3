@@ -196,16 +196,10 @@ print(paste0("sought CPDT trainer: ", cnt, " (", proportion, ")%"))
 
 
 ```{r}
-rm(df_t, t_rows, cred_cnt)
+rm(df_t, t_rows)
 ```
 
 ## Consultants
-
-```{r}
-c_cnt = sum(df$has_seen_consultant==TRUE, na.rm=TRUE)
-proportion = round(c_cnt / dim(df)[1] * 100, 2)
-print(paste0("sought behav. consultant help: ", c_cnt, " (", proportion, ")%"))
-```
 
 ```{r}
 df_c <- df %>%
@@ -244,12 +238,39 @@ print(paste0("CDBC: ", sum(df_c$is_consultant_cdbc, na.rm=TRUE)))
 print(paste0("ACAAB/CAAB: ", sum(df_c$is_consultant_acaab, na.rm=TRUE)))
 ```
 
+```{r}
+rm(df_c, c_rows)
+```
+
 ## Veterinarians
 
 ```{r}
-v_cnt = sum(df$has_seen_veterinarian==TRUE, na.rm=TRUE)
-proportion = round(v_cnt / dim(df)[1] * 100, 2)
-print(paste0("sought veterinarian help: ", v_cnt, " (", proportion, ")%"))
+df_v <- df %>%
+  filter(has_seen_veterinarian)
+v_rows <- dim(df_v)[1]
+proportion <- round(v_rows / total_rows * 100, 2)
+print(paste0("sought veterinarian help: ", v_rows, " (", proportion, ")%"))
+```
+
+```{r}
+cnt <- sum(df_v$has_vet_found_related_health_issue==TRUE, na.rm=TRUE)
+proportion <- round(cnt / v_rows * 100, 2)
+print(paste0("found health issue: ", cnt, " (", proportion, ")%"))
+```
+
+```{r}
+print("Count of specific discovered health issues")
+print(paste0("pain: ", sum(df_v$has_vet_found_pain, na.rm=TRUE)))
+print(paste0("other: ", sum(df_v$has_vet_found_other_issue, na.rm=TRUE)))
+print(paste0("thyroid issue: ",
+             sum(df_v$has_vet_found_thyroid_issue, na.rm=TRUE)))
+print(paste0("seizures: ", sum(df_v$has_vet_found_seizures,na.rm=TRUE)))
+
+print(paste0("tumor: ", sum(df_v$has_vet_found_tumor, na.rm=TRUE)))
+print(paste0("cognitive dysfunction: ",
+             sum(df_v$has_vet_found_cognitive_dysfunction, na.rm=TRUE)))
+
+
 ```
 
 # Save Session Info
