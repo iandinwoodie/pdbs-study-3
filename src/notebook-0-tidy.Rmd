@@ -2,7 +2,7 @@
 title: "Building Tidy Data"
 author: "Ian Dinwoodie"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -19,41 +19,41 @@ study data for analysis.
 
 ## Loading the Data Into Memory
 
-We start the tidying process from the manually cleaned data set
-(`data/manually-cleaned.csv`) since it is structured and coded appropriately.
-Explanations for the various stages of the study data are available in the data
-directory README file (`data/README.md`).
+We start the tidying process from the available processed data set since it has
+been structured and has been through a minimal, but necessary, manual data
+cleaning process.
 
 ```{r}
-df <- read.csv('../data/data/processed/processed.csv', header=TRUE, skipNul=TRUE,
-               na.strings=c("","NA"))
-stopifnot(identical(dim(df)+0, c(5057, 490)))
-str(df, list.len=5)
-summary(df)
+df <- read.csv('../data/data/processed/processed.csv', header=TRUE,
+               skipNul=TRUE, na.strings=c("","NA"))
+stopifnot(identical(dim(df)+0, c(5057, 489)))
+#str(df, list.len=12)
+str(df)
 ```
 
 ## Applying Readable Column Names
 
-Our starting data set is 2318 rows (completed dog entries) by 484 columns (data
-fields per dog). A list of improved column names focused on readability has been
-provided in the reference directory (`references/readable-column-names.csv`).
-Let's load and apply these updated names to our data frame.
+A list of improved column names focused on readability has been provided in the
+reference directory. Let's load and apply these updated names to our data frame.
 
 ```{r}
-colnames(df) <- readr::read_lines('../references/readable-column-names.csv')
-head(colnames(df), n=5)
+colnames(df) <- readr::read_lines('../references/readable-column-names.txt')
+str(df, list.len=12)
+stopifnot(identical(dim(df)+0, c(5057, 489))) # No change in data frame shape.
 ```
 
-## Dropping Unnecessary Rows
+## Drop All Non-Applicable Entries
 
-Drop rows for entries that did not complete the treatment response phase of the
-study (i.e., phase 2).
+We can drop all entries where:
+
+* The treatment response phase (i.e., phase 2) is incomplete.
+* Fear/anxiety is not indicated.
 
 ```{r}
 df <- df %>%
-  filter(phase_2_complete == 2)
-stopifnot(identical(dim(df)+0, c(2322, 490)))
-dim(df)
+  filter(phase_2_complete == 2) %>%
+  filter(has_exhibited_fear_anxiety == 1)
+stopifnot(identical(dim(df)+0, c(1308, 489))) # Expect sig. reduction of rows.
 ```
 
 ## Dropping Unnecessary Columns
@@ -63,14 +63,10 @@ reference directory (`references/columns-for-tidying.csv`). Let's load this file
 and drop any unmentioned columns.
 
 ```{r}
-df <- df %>% select(one_of(
-  readr::read_lines('../references/columns-for-tidying.csv')))
-stopifnot(identical(dim(df)+0, c(2322, 274)))
-dim(df)
+df <- df %>% select(
+  readr::read_lines('../references/columns-for-tidying.txt'))
+stopifnot(identical(dim(df)+0, c(1308, 268))) # Expect sig. reduction of cols.
 ```
-
-The number of columns is reduced by about 43% and the number of rows remains the
-same (as expected).
 
 # Adjusting Data Types
 
@@ -85,6 +81,7 @@ df <- df %>%
 df$weight <- as.numeric(df$weight)
 
 df %>% select(matches('_(wks|mos|yrs)$')) %>% str(list.len=5)
+stopifnot(identical(dim(df)+0, c(1308, 268))) # No change in dimensions.
 ```
 
 ## Logical
@@ -98,7 +95,8 @@ type logical.
 df <- df %>%
   mutate_at(vars(matches('^(is|has)_')), funs(replace(., . == 2, NA))) %>%
   mutate_at(vars(matches('^(is|has)_')), funs(as.logical(.))) %>%
-  mutate(is_male = (sex == 1), .keep = "unused")
+  mutate(is_male=(sex==1), sex=NULL)
+
 df %>% select(matches('^(is|has)_')) %>% str(list.len=5)
 ```
 
@@ -106,38 +104,28 @@ df %>% select(matches('^(is|has)_')) %>% str(list.len=5)
 
 ```{r}
 df <- df %>%
-  mutate_at(vars(matches('_rating$')), funs(as.factor(.))) %>%
+  mutate_at(vars(matches('_rating$')), funs(factor(., levels=c(1:7)))) %>%
   mutate_at(vars(matches('_units$')), funs(as.factor(.)))
-df$purebred_akc_breed <- as.factor(df$purebred_akc_breed)
+df$purebred_breed <- as.factor(df$purebred_breed)
 df$acquisition_source <- as.factor(df$acquisition_source)
 df$prof_with_best_results <- as.factor(df$prof_with_best_results)
 df$non_improve_ultimate_outcome <- as.factor(df$non_improve_ultimate_outcome)
 df$owner_id <- as.factor(df$owner_id)
-#df$valium_type <- as.factor(df$valium_type)
-#df$other_drug_desc <- as.factor(df$other_drug_desc)
+
+levels(df$acquisition_source) <- list(
+  "rescue"=c("online (rescue)", "shelter/rescue"),
+  "breeder"=c("online (purchase)", "breeder"),
+  "pet store"=c("pet store"),
+  "self-bred"=c("self-bred"),
+  "friend/family"=c("friend/family"),
+  "found"=c("found"),
+  "other"=c("other")
+)
 
 str(df, list.len=5)
 ```
 
-# Drop Entries Without Fear/Anxiety
-
-For this study we are investigating fear and anxiety, therefore, we only need to
-retain entries relevant to that goal. We use the fear/anxiety binary indicator
-to determine which entries should be kept.
-
-```{r}
-df <- df %>%
-  filter(has_exhibited_fear_anxiety == 1) %>%
-  select(-has_exhibited_fear_anxiety)
-stopifnot(identical(dim(df)+0, c(1308, 273)))
-dim(df)
-```
-
-We see that there are entries for 1305 fearful and/or anxious dogs in the data
-set and the column count has decremented to 273 as a result of dropping the
-fear/anxiety indicator.
-
-# Drop Unused Factor Levels
+### Drop Unused Factor Levels
 
 Sub-setting the data frame to only the entries for dogs with fear/anxiety may
 result in unused factor levels. These unused levels can be dropped.
@@ -146,13 +134,228 @@ result in unused factor levels. These unused levels can be dropped.
 df[] <- lapply(df, function(x) if(is.factor(x)) factor(x) else x)
 ```
 
+# Unifying Timescales
+
+```{r}
+df <- df %>%
+  mutate(
+    cur_age_in_mos=ifelse(
+      is.na(cur_age_in_mos), cur_age_in_yrs*12, cur_age_in_mos),
+    cur_age_in_yrs=NULL) %>%
+  mutate(
+    acq_age_in_mos=ifelse(
+      is.na(acq_age_in_mos), acq_age_in_yrs*12, acq_age_in_mos),
+    acq_age_in_yrs=NULL) %>%
+  mutate(
+    neuter_age_in_mos=ifelse(
+      is.na(neuter_age_in_mos), neuter_age_in_yrs*12, neuter_age_in_mos),
+    neuter_age_in_yrs=NULL)
+stopifnot(identical(dim(df)+0, c(1308, 265))) # Col count reduced by 3.
+```
+
+# Binning Response Ratings
+
+## Overall Response Rating
+
+We want to consider the response for treatment to fear/anxiety as a whole.
+Therefore, we create an "overall" fear/anxiety treatment response rating by
+taking the average of the response ratings for each entry.
+
+```{r}
+df <- df %>%
+  mutate(thunderstorm_phobia_rating=as.numeric(thunderstorm_phobia_rating)) %>%
+  mutate(non_thunderstorm_noise_phobia_rating=as.numeric(
+    non_thunderstorm_noise_phobia_rating)) %>%
+  mutate(fear_of_other_dogs_rating=as.numeric(fear_of_other_dogs_rating)) %>%
+  mutate(crowd_phobia_rating=as.numeric(crowd_phobia_rating)) %>%
+  mutate(situation_anxiety_rating=as.numeric(situation_anxiety_rating)) %>%
+  mutate(veterinary_anxiety_rating=as.numeric(veterinary_anxiety_rating)) %>%
+  mutate(separation_anxiety_rating=as.numeric(separation_anxiety_rating)) %>%
+  mutate(anxiety_in_the_car_rating=as.numeric(anxiety_in_the_car_rating)) %>%
+  mutate(general_anxiety_rating=as.numeric(general_anxiety_rating)) %>%
+  mutate(ptsd_rating=as.numeric(ptsd_rating)) %>%
+  mutate(other_fear_anxiety_rating=as.numeric(other_fear_anxiety_rating)) %>%
+  mutate(
+    fa_overall_rating=rowMeans(
+      select(
+        .,
+        thunderstorm_phobia_rating,
+        non_thunderstorm_noise_phobia_rating,
+        fear_of_other_dogs_rating,
+        crowd_phobia_rating,
+        situation_anxiety_rating,
+        veterinary_anxiety_rating,
+        separation_anxiety_rating,
+        anxiety_in_the_car_rating,
+        general_anxiety_rating,
+        ptsd_rating,
+        other_fear_anxiety_rating
+      ),
+      na.rm=TRUE
+    ),
+    other_fear_anxiety_rating=NULL
+  )
+
+summary(df$fa_overall_rating)
+stopifnot(min(df$fa_overall_rating, na.rm=TRUE) == 1.000)
+stopifnot(max(df$fa_overall_rating, na.rm=TRUE) == 7.000)
+stopifnot(median(df$fa_overall_rating, na.rm=TRUE) == 4.750)
+stopifnot(round(mean(df$fa_overall_rating, na.rm=TRUE), 3) == 4.803)
+stopifnot(identical(dim(df)+0, c(1308, 265))) # Col count delta = -1 + 1 = 0.
+```
+
+## Subtype Response Ratings
+
+Now we bin the response ratings into specific fear/anxiety subtypes.
+  
+### Inanimate Response Rating
+
+Construct the Inanimate Response Rating from the following fields:
+
+* Thunderstorm phobia response rating
+* Non-thunderstorm noise phobia response rating
+
+```{r}
+df <- df %>%
+  mutate(
+    inanimate_rating=rowMeans(
+      select(
+        .,
+        thunderstorm_phobia_rating,
+        non_thunderstorm_noise_phobia_rating
+      ),
+      na.rm=TRUE
+    ),
+    thunderstorm_phobia_rating=NULL,
+    non_thunderstorm_noise_phobia_rating=NULL
+  )
+
+summary(df$inanimate_rating)
+stopifnot(min(df$inanimate_rating, na.rm=TRUE) == 1.000)
+stopifnot(max(df$inanimate_rating, na.rm=TRUE) == 7.000)
+stopifnot(median(df$inanimate_rating, na.rm=TRUE) == 4.500)
+stopifnot(round(mean(df$inanimate_rating, na.rm=TRUE), 3) == 4.612)
+stopifnot(identical(dim(df)+0, c(1308, 264))) # Col count delta = -2 + 1 = -1.
+```
+
+### Animate Response Rating
+
+The Animate Response Rating consists of a single field, so we just rename the
+field for consistency.
+
+```{r}
+df <- df %>%
+  mutate(animate_rating=fear_of_other_dogs_rating,
+         fear_of_other_dogs_rating=NULL)
+
+summary(df$animate_rating)
+stopifnot(min(df$animate_rating, na.rm=TRUE) == 1.000)
+stopifnot(max(df$animate_rating, na.rm=TRUE) == 7.000)
+stopifnot(median(df$animate_rating, na.rm=TRUE) == 5.000)
+stopifnot(round(mean(df$animate_rating, na.rm=TRUE), 3) == 5.078)
+stopifnot(identical(dim(df)+0, c(1308, 264))) # Col count delta = -1 + 1 = 0.
+```
+
+### Situational Response Rating
+
+Construct the Situational Response Rating from the following fields:
+
+* Crowd phobia response rating
+* Situational anxiety response rating
+* Fear of veterinarian response rating
+* Separation anxiety response rating
+* Anxiety in the car response rating
+
+```{r}
+df <- df %>%
+  mutate(
+    situational_rating=rowMeans(
+      select(
+        .,
+        crowd_phobia_rating,
+        situation_anxiety_rating,
+        veterinary_anxiety_rating,
+        separation_anxiety_rating,
+        anxiety_in_the_car_rating
+      ),
+      na.rm=TRUE
+    ),
+    crowd_phobia_rating=NULL,
+    situation_anxiety_rating=NULL,
+    veterinary_anxiety_rating=NULL,
+    separation_anxiety_rating=NULL,
+    anxiety_in_the_car_rating=NULL
+  )
+
+summary(df$situational_rating)
+stopifnot(min(df$situational_rating, na.rm=TRUE) == 1.000)
+stopifnot(max(df$situational_rating, na.rm=TRUE) == 7.000)
+stopifnot(median(df$situational_rating, na.rm=TRUE) == 5.000)
+stopifnot(round(mean(df$situational_rating, na.rm=TRUE), 3) == 4.881)
+stopifnot(identical(dim(df)+0, c(1308, 260))) # Col count delta = -5 + 1 = -4.
+```
+
+### Generalized Response Rating
+
+The Generalized Response Rating consists of a single field, so we just rename
+the field for consistency
+
+```{r}
+df <- df %>%
+  mutate(
+    generalized_rating=general_anxiety_rating,
+    general_anxiety_rating=NULL)
+
+summary(df$generalized_rating )
+stopifnot(min(df$generalized_rating, na.rm=TRUE) == 1.000)
+stopifnot(max(df$generalized_rating, na.rm=TRUE) == 6.000)
+stopifnot(median(df$generalized_rating, na.rm=TRUE) == 5.000)
+stopifnot(round(mean(df$generalized_rating, na.rm=TRUE), 3) == 4.454)
+stopifnot(identical(dim(df)+0, c(1308, 260))) # Col count delta = -1 + 1 = 0.
+```
+
+### Post-Traumatic Stress Disorder (PTSD) Response Rating
+
+The PTSD Response Rating consists of a single field, so we just rename the field
+for consistency
+
+```{r}
+df$ptsd_rating <- as.numeric(df$ptsd_rating)
+
+summary(df$ptsd_rating)
+stopifnot(min(df$ptsd_rating, na.rm=TRUE) == 1.000)
+stopifnot(max(df$ptsd_rating, na.rm=TRUE) == 6.000)
+stopifnot(median(df$ptsd_rating, na.rm=TRUE) == 4.000)
+stopifnot(round(mean(df$ptsd_rating, na.rm=TRUE), 3) == 4.205)
+stopifnot(identical(dim(df)+0, c(1308, 260))) # No change in data frame shape.
+```
+
+
 # Final Summary
+
+Verify that the tidy data set contains only the expected columns.
+
+```{r}
+expected_cols <- readr::read_lines('../references/expected-tidy-columns.txt')
+actual_cols <- colnames(df)
+missing_cols <-setdiff(expected_cols, actual_cols)
+stopifnot(length(missing_cols) == 0)
+rm(missing_cols)
+extra_cols = setdiff(actual_cols, expected_cols)
+stopifnot(length(extra_cols) == 0)
+rm(extra_cols, expected_cols, actual_cols)
+```
 
 Take a last look at the data before saving it to disk.
 
 ```{r}
 dim(df)
+
+old_max_print <- getOption("max.print")
+options(max.print=.Machine$integer.max)
 summary(df)
+options(max.print=old_max_print)
+rm(old_max_print)
 ```
 
 # Saving the Tidy Data
@@ -161,6 +364,13 @@ Save the data to a file in the data directory using RDS format so that the data
 types are stored and the resulting file is compressed.
 
 ```{r}
-dir.create(path='../build/', showWarnings=F)
+dir.create(path='../build/', showWarnings=FALSE)
 saveRDS(df, '../build/tidy.Rds')
+rm(df)
+```
+
+# Save Session Info
+
+```{r}
+sessionInfo()
 ```

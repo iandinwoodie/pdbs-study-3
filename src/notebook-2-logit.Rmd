@@ -2,9 +2,7 @@
 title: "Binary Logistic Regression"
 author: "Ian Dinwoodie"
 date: "`r Sys.Date()`"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -17,13 +15,13 @@ opts_chunk$set(echo=TRUE)
 set.seed(1)
 ```
 
-# Loading the Data
+# Loading the Tidy Data
 
-Load the raw data and verify the expected dimensions.
+Load the tidy data from disk.
 
 ```{r}
 df <- readRDS('../build/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+#stopifnot(identical(dim(df)+0, c(1308, 261)))
 str(df, list.len=5)
 ```
 
@@ -36,19 +34,29 @@ TODO: Relocate this section to the tidy notebook.
 # We ignore levels 5 and 6 because they are irrelevant to the question.
 df$has_systematic_desen <- ifelse(df$behav_mod_strategy_used==1, 1, 0)
 df$has_systematic_desen[is.na(df$has_systematic_desen)] <- 0
-df$has_systematic_desen <- as.integer(df$has_systematic_desen)
+df$has_systematic_desen <- as.logical(df$has_systematic_desen)
+stopifnot(sum(df$has_systematic_desen) == 48)
+
 df$has_counter_conditioning <- ifelse(df$behav_mod_strategy_used==2, 1, 0)
 df$has_counter_conditioning[is.na(df$has_counter_conditioning)] <- 0
-df$has_counter_conditioning <- as.integer(df$has_counter_conditioning)
+df$has_counter_conditioning <- as.logical(df$has_counter_conditioning)
+stopifnot(sum(df$has_counter_conditioning) == 70)
+
 df$has_sd_and_cc <- ifelse(df$behav_mod_strategy_used==3, 1, 0)
 df$has_sd_and_cc[is.na(df$has_sd_and_cc)] <- 0
-df$has_sd_and_cc <- as.integer(df$has_sd_and_cc)
+df$has_sd_and_cc <- as.logical(df$has_sd_and_cc)
+stopifnot(sum(df$has_sd_and_cc) == 203)
+
 df$has_leadership <- ifelse(df$behav_mod_strategy_used==4, 1, 0)
 df$has_leadership[is.na(df$has_leadership)] <- 0
-df$has_leadership <- as.integer(df$has_leadership)
-df <- subset(df, select=-behav_mod_strategy_used)
-stopifnot(identical(dim(df)+0, c(1308, 276)))
+df$has_leadership <- as.logical(df$has_leadership)
+stopifnot(sum(df$has_leadership) == 30)
 
+df <- subset(df, select=-behav_mod_strategy_used)
+#stopifnot(identical(dim(df)+0, c(1308, 269)))
+```
+
+```{r}
 # Correct training method entries.
 # We consider dogs trained with any form of punishment to be excluded from a
 # reward-only training style. We consider compulsion a form of punishment.
@@ -59,12 +67,12 @@ df$has_reward_based_training <- ifelse(df$has_punish_based_training==1, 0,
                                        df$has_reward_based_training)
 df <- subset(df, select=-c(has_combo_based_training,
                            has_compulsion_based_training))
-stopifnot(identical(dim(df)+0, c(1308, 274)))
+#stopifnot(identical(dim(df)+0, c(1308, 267)))
 
 # Drop clicker/whistle from equipment since it is present in the behavior
 # techniques.
 df <- subset(df, select=-has_clicker)
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+#stopifnot(identical(dim(df)+0, c(1308, 266)))
 
 # TODO: explain the lines below (68-71)
 df$is_trainer_credentialed <- ifelse(df$is_trainer_credentialed == 1, 1, 0)
@@ -80,67 +88,9 @@ df$is_consultant_cbcc_ka <- ifelse(df$is_consultant_cbcc_ka == 1, 1, 0)
 df$is_consultant_cdbc <- ifelse(df$is_consultant_cdbc == 1, 1, 0)
 df$is_consultant_acaab <- ifelse(df$is_consultant_acaab == 1, 1, 0)
 df$is_consultant_dacvb <- ifelse(df$is_consultant_dacvb == 1, 1, 0)
+```
 
-# Bin fear/anxiety types into categories.
-# bins: {inanimate, animate, situational, generalized, ptsd}
-# 2 + 1 + 5 + 1 + 1 = 10
-df$thunderstorm_phobia_rating <- as.integer(df$thunderstorm_phobia_rating)
-df$non_thunderstorm_noise_phobia_rating <- as.integer(df$non_thunderstorm_noise_phobia_rating)
-df$inanimate_rating <- rowMeans(
-  subset(df, select = c(
-    thunderstorm_phobia_rating,
-    non_thunderstorm_noise_phobia_rating)), na.rm = TRUE)
-summary(df$inanimate_rating)
-
-df$fear_of_other_dogs_rating <- as.integer(df$fear_of_other_dogs_rating)
-df$animate_rating <- rowMeans(
-  subset(df, select = c(fear_of_other_dogs_rating)), na.rm = TRUE)
-summary(df$animate_rating)
-
-df$crowd_phobia_rating <- as.integer(df$crowd_phobia_rating)
-df$situation_anxiety_rating <- as.integer(df$situation_anxiety_rating)
-df$veterinary_anxiety_rating <- as.integer(df$veterinary_anxiety_rating)
-df$separation_anxiety_rating <- as.integer(df$separation_anxiety_rating)
-df$anxiety_in_the_car_rating <- as.integer(df$anxiety_in_the_car_rating)
-df$situational_rating <- rowMeans(
-  subset(df, select = c(
-    crowd_phobia_rating,
-    situation_anxiety_rating,
-    veterinary_anxiety_rating,
-    separation_anxiety_rating,
-    anxiety_in_the_car_rating
-  )), na.rm = TRUE)
-summary(df$situational_rating)
-
-df$general_anxiety_rating <- as.integer(df$general_anxiety_rating)
-df$generalized_rating <- rowMeans(
-  subset(df, select = c(general_anxiety_rating)), na.rm = TRUE)
-summary(df$generalized_rating )
-
-df$ptsd_rating <- as.integer(df$ptsd_rating)
-df$ptsd_rating <- rowMeans(subset(df, select = c(ptsd_rating)), na.rm = TRUE)
-summary(df$ptsd_rating)
-
-df$other_fear_anxiety_rating <- as.integer(df$other_fear_anxiety_rating)
-df$fa_overall_rating <- rowMeans(
-  subset(df, select = c(
-    thunderstorm_phobia_rating,
-    non_thunderstorm_noise_phobia_rating,
-    fear_of_other_dogs_rating,
-    crowd_phobia_rating,
-    situation_anxiety_rating,
-    veterinary_anxiety_rating,
-    separation_anxiety_rating,
-    anxiety_in_the_car_rating,
-    general_anxiety_rating,
-    ptsd_rating,
-    other_fear_anxiety_rating
-  )), na.rm = TRUE)
-summary(df$fa_overall_rating)
-
-#str(df)
-stopifnot(identical(dim(df)+0, c(1308, 278)))
-
+```{r}
 # Condense punishing devices into a single column.
 df$has_punishment_device <- ifelse(
     df$has_martingale == T, T, F)
@@ -336,7 +286,7 @@ Get the number of dogs that used equipment:
 df <- df[!is.na(df$is_male),]
 df <- df[!is.na(df$is_neutered),]
 summary(df)
-stopifnot(identical(dim(df)+0, c(1299, 75)))
+stopifnot(identical(dim(df)+0, c(1302, 75)))
 ```
 
 General rule of thumb for logistic regression is that each variable should have
@@ -394,7 +344,7 @@ apply_min_xtab <- function(df, cutoff=10)
 }
 
 df <- apply_binary_response_criteria(df)
-stopifnot(identical(dim(df)+0, c(1299, 69)))
+stopifnot(identical(dim(df)+0, c(1302, 69)))
 summary(df)
 ```
 
@@ -408,7 +358,6 @@ get_reduced_data_frame <- function(df, pred.patterns, outcome, excludes)
   df.out <- df[, idx]
 
   # Format the outcome as a factor with order.
-  #df.out[,outcome] <- round(df.out[, outcome], 0)
   df.out[,outcome] <- factor(
       df.out[, outcome], levels=c("1","2","3","4","5","6","7"), ordered=TRUE)
   
@@ -646,14 +595,11 @@ outcome <- "ptsd_rating"
 excludes <- vector()
 df_red <- apply_binary_response_criteria(
     get_reduced_data_frame(df, predictors, outcome, excludes),
-    min_cutoff=20) # Increase cutoff due to smaller same size.
+    min_cutoff=20) # Increase cutoff due to smaller sample size.
 df_red$ptsd_rating <- as.factor(ifelse(df_red$ptsd_rating <= 4, 0, 1))
 
 # Collinearity adjustments.
-df_red <- subset(df_red, select=-is_consultant_credentialed) # VIF 10.59
-#df_red <- subset(df_red, select=-is_trainer_credentialed) # VIF 5.83
-#df_red <- subset(df_red, select=-has_massage_therapy) # VIF 5.74
-#df_red <- subset(df_red, select=-has_pheromone_therapy) # VIF 3.98
+df_red <- subset(df_red, select=-has_seen_consultant) # VIF 7.13
 
 summary(df_red)
 ```
@@ -682,4 +628,10 @@ for (i in 1:nrow(df_results)) {
 }
 
 knitr::kable(df_results)
+```
+
+# Save Session Info
+
+```{r}
+sessionInfo()
 ```

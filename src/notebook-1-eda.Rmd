@@ -10,16 +10,271 @@ library(tidyverse)
 knitr::opts_chunk$set(echo=TRUE)
 ```
 
-# Loading the Data
+# Loading the Tidy Data
 
-Load the raw data and verify the expected dimensions.
+Load the tidy data from disk.
 
 ```{r}
 df <- readRDS('../build/tidy.Rds')
-stopifnot(identical(dim(df)+0, c(1308, 273)))
+stopifnot(identical(dim(df)+0, c(1308, 260)))
 str(df, list.len=5)
 ```
 
 # Descriptive Stats
 
-TODO
+## Households
+
+Get the nunber of participating dog owners.
+
+```{r}
+length(unique(df$owner_id))
+```
+
+Determine the median number of dogs per household.
+
+```{r}
+summary(as.data.frame(table(df$owner_id))$Freq)
+```
+
+## Gender and Neuter Status
+
+```{r}
+tbl <- as.numeric(table(df$is_male))
+male_cnt <- tbl[2]
+female_cnt <- tbl[1]
+rm(tbl)
+
+male_prop <- round(male_cnt / (male_cnt + female_cnt) * 100, 2)
+print(paste0("Males: ", male_cnt, " (", male_prop, "%)"))
+print(paste0("Females: ", female_cnt, " (", 100-male_prop, "%)"))
+rm(male_prop)
+```
+
+```{r}
+tbl <- xtabs(~is_male+is_neutered,data=df)
+male_neutered_cnt <- tbl[4]
+female_neutered_cnt <- tbl[3]
+rm(tbl)
+
+male_neutered_prop <- round(male_neutered_cnt / male_cnt * 100, 2)
+print(paste0("Males that are neutered: ", male_neutered_cnt, " (",
+             male_neutered_prop, "%)"))
+rm(male_cnt, male_neutered_cnt, male_neutered_prop)
+
+female_neutered_prop <- round(female_neutered_cnt / female_cnt * 100, 2)
+print(paste0("Females that are neutered: ", female_neutered_cnt, " (",
+             female_neutered_prop, "%)"))
+rm(female_cnt, female_neutered_cnt, female_neutered_prop)
+```
+
+## Ages
+
+```{r}
+display_median_with_range <- function(col) {
+  col_min <- min(col, na.rm=TRUE)
+  col_max <- max(col, na.rm=TRUE)
+  col_median <- median(col, na.rm=TRUE)
+  col_cnt <- sum(!is.na(col))
+  print(paste0("median=", col_median, " (range: ", col_min, " to ", col_max,
+               ") (n=", col_cnt, ")"))
+}
+
+print("Age at time of study (in months)")
+display_median_with_range(df$cur_age_in_mos)
+```
+
+```{r}
+print("Age at time of acquisition (in months)")
+display_median_with_range(df$acq_age_in_mos)
+```
+
+```{r}
+print("Age at time of neuter (in months)")
+display_median_with_range(df$neuter_age_in_mos)
+```
+
+## Fear/Anxiety Frequencies
+
+```{r}
+cnt <- sum(!is.na(df$inanimate_rating))
+total_rows <- dim(df)[1]
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("inanimate=", cnt, " (", proportion, "%)"))
+```
+
+```{r}
+cnt <- sum(!is.na(df$animate_rating))
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("animate=", cnt, " (", proportion, "%)"))
+```
+
+```{r}
+cnt <- sum(!is.na(df$situational_rating))
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("situational=", cnt, " (", proportion, "%)"))
+```
+
+```{r}
+cnt <- sum(!is.na(df$generalized_rating))
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("generalized=", cnt, " (", proportion, "%)"))
+```
+
+```{r}
+cnt <- sum(!is.na(df$ptsd_rating))
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("ptsd=", cnt, " (", proportion, "%)"))
+```
+
+```{r}
+cnt <- sum(!is.na(df$fa_overall_rating))
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("fa_overall=", cnt, " (", proportion, "%)"))
+```
+
+# Acquisition Source
+
+```{r}
+df %>%
+  filter(!is.na(acquisition_source)) %>%
+  group_by(acquisition_source) %>%
+  summarise(n=n()) %>%
+  arrange(desc(n))
+```
+
+# Purebred Breed
+
+```{r}
+df %>%
+  filter(!is.na(purebred_breed)) %>%
+  group_by(purebred_breed) %>%
+  summarise(n=n()) %>%
+  arrange(desc(n))
+```
+# Breakdown of Professionals
+
+```{r}
+cnt <- sum(df$has_seen_professional==TRUE, na.rm=TRUE)
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("sought professional help: ", cnt, " (", proportion, ")%"))
+```
+
+## Tainers
+
+```{r}
+df_t <- df %>%
+  filter(has_seen_trainer)
+t_rows <- dim(df_t)[1]
+proportion <- round(t_rows / total_rows * 100, 2)
+print(paste0("sought trainer help: ", t_rows, " (", proportion, ")%"))
+```
+
+```{r}
+cnt <- sum(df$has_seen_multiple_trainers==TRUE, na.rm=TRUE)
+proportion <- round(cnt / t_rows * 100, 2)
+print(paste0("sought multiple trainers: ", cnt, " (", proportion, ")%"))
+```
+
+```{r}
+df_t$trainers_count[df_t$has_seen_trainer] <-
+  ifelse(df_t$has_seen_multiple_trainers, df_t$trainers_count, 1)
+print("median trainers seen")
+display_median_with_range(df_t$trainers_count)
+```
+
+```{r}
+cred_cnt <- sum(df_t$is_trainer_credentialed==TRUE, na.rm=TRUE)
+proportion <- round(cred_cnt / t_rows * 100, 2)
+print(paste0("sought cred. trainer: ", cred_cnt, " (", proportion, ")%"))
+```
+
+```{r}
+cnt <- sum(df_t$is_trainer_cpdt_credentialed==TRUE, na.rm=TRUE)
+proportion <- round(cnt / cred_cnt * 100, 2)
+print(paste0("sought CPDT trainer: ", cnt, " (", proportion, ")%"))
+```
+
+
+```{r}
+rm(df_t, t_rows)
+```
+
+## Consultants
+
+```{r}
+df_c <- df %>%
+  filter(has_seen_consultant)
+c_rows <- dim(df_c)[1]
+proportion <- round(c_rows / total_rows * 100, 2)
+print(paste0("sought consultant help: ", c_rows, " (", proportion, ")%"))
+```
+
+```{r}
+cnt <- sum(df$has_seen_multiple_consultants==TRUE, na.rm=TRUE)
+proportion <- round(cnt / c_rows * 100, 2)
+print(paste0("sought multiple consultants: ", cnt, " (", proportion, ")%"))
+```
+
+```{r}
+df_c$trainers_count[df_c$has_seen_consultant] <-
+  ifelse(df_c$has_seen_multiple_consultants, df_c$consultants_count, 1)
+print("median consultants seen")
+display_median_with_range(df_c$consultants_count)
+```
+
+```{r}
+cred_cnt <- sum(df_c$is_consultant_credentialed==TRUE, na.rm=TRUE)
+proportion <- round(cred_cnt / c_rows * 100, 2)
+print(paste0("sought cred. consultant: ", cred_cnt, " (", proportion, ")%"))
+```
+
+```{r}
+print("Count of consultant credentials")
+print(paste0("CBCC-KA: ", sum(df_c$is_consultant_cbcc_ka, na.rm=TRUE)))
+print(paste0("other: ",
+             sum(df_c$is_consultant_credentialed_other,na.rm=TRUE)))
+print(paste0("DACVB: ", sum(df_c$is_consultant_dacvb, na.rm=TRUE)))
+print(paste0("CDBC: ", sum(df_c$is_consultant_cdbc, na.rm=TRUE)))
+print(paste0("ACAAB/CAAB: ", sum(df_c$is_consultant_acaab, na.rm=TRUE)))
+```
+
+```{r}
+rm(df_c, c_rows)
+```
+
+## Veterinarians
+
+```{r}
+df_v <- df %>%
+  filter(has_seen_veterinarian)
+v_rows <- dim(df_v)[1]
+proportion <- round(v_rows / total_rows * 100, 2)
+print(paste0("sought veterinarian help: ", v_rows, " (", proportion, ")%"))
+```
+
+```{r}
+cnt <- sum(df_v$has_vet_found_related_health_issue==TRUE, na.rm=TRUE)
+proportion <- round(cnt / v_rows * 100, 2)
+print(paste0("found health issue: ", cnt, " (", proportion, ")%"))
+```
+
+```{r}
+print("Count of specific discovered health issues")
+print(paste0("pain: ", sum(df_v$has_vet_found_pain, na.rm=TRUE)))
+print(paste0("other: ", sum(df_v$has_vet_found_other_issue, na.rm=TRUE)))
+print(paste0("thyroid issue: ",
+             sum(df_v$has_vet_found_thyroid_issue, na.rm=TRUE)))
+print(paste0("seizures: ", sum(df_v$has_vet_found_seizures,na.rm=TRUE)))
+
+print(paste0("tumor: ", sum(df_v$has_vet_found_tumor, na.rm=TRUE)))
+print(paste0("cognitive dysfunction: ",
+             sum(df_v$has_vet_found_cognitive_dysfunction, na.rm=TRUE)))
+
+
+```
+
+# Save Session Info
+
+```{r}
+sessionInfo()
+```
