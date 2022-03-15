@@ -317,7 +317,6 @@ for(i in 1:length(dosage_cols)) {
 ## Improvement
 
 ```{r}
-#rating <- factor(df$fa_overall_rating, levels=c(1:7))
 rating <- df$fa_overall_rating
 i_cnt <- sum(rating > 4, na.rm=T)
 proportion <- round(i_cnt / total_rows * 100, 2)
@@ -364,7 +363,17 @@ proportion <- round(cnt / total_rows * 100, 2)
 print(paste0("stayed the same = ", cnt, " (", proportion, "%)"))
 ```
 
+## Ultimate Outcome
 
+```{r}
+print(paste0("stayed the same or got worse = ", total_rows - i_cnt))
+
+# 1 = kept
+# 2 = re-homed
+# 3 = surrendered to shelter, rescue, or pound
+# 4 = euthanized
+summary(df$non_improve_ultimate_outcome)
+```
 
 # Save Session Info
 
