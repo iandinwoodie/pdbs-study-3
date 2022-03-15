@@ -317,17 +317,19 @@ for(i in 1:length(dosage_cols)) {
 ## Improvement
 
 ```{r}
-i_cnt <- sum(df$fa_overall_rating >= 5, na.rm=T)
+#rating <- factor(df$fa_overall_rating, levels=c(1:7))
+rating <- df$fa_overall_rating
+i_cnt <- sum(rating > 4, na.rm=T)
 proportion <- round(i_cnt / total_rows * 100, 2)
 print(paste0("showed improvement = ", i_cnt, " (", proportion, "%)"))
 
-cnt <- sum(df$fa_overall_rating >= 5 & df$fa_overall_rating < 6, na.rm=T)
+cnt <- sum(rating & df$fa_overall_rating >= 5, na.rm=T)
 proportion <- round(cnt / i_cnt * 100, 2)
 print(paste0("showed >=25% improvement = ", cnt, " (", proportion, "%)"))
 
-cnt <- sum(df$fa_overall_rating >= 6 & df$fa_overall_rating < 7, na.rm=T)
+cnt <- sum(df$fa_overall_rating >= 6, na.rm=T)
 proportion <- round(cnt / i_cnt * 100, 2)
-print(paste0("showed >=25% improvement = ", cnt, " (", proportion, "%)"))
+print(paste0("showed >=50% improvement = ", cnt, " (", proportion, "%)"))
 
 cnt <- sum(df$fa_overall_rating >= 7, na.rm=T)
 proportion <- round(cnt / i_cnt * 100, 2)
@@ -337,19 +339,19 @@ print(paste0("showed >=75% improvement = ", cnt, " (", proportion, "%)"))
 ## Worsened
 
 ```{r}
-w_cnt <- sum(df$fa_overall_rating <= 3, na.rm=T)
+w_cnt <- sum(rating < 4, na.rm=T)
 proportion <- round(w_cnt / total_rows * 100, 2)
 print(paste0("worsened = ", w_cnt, " (", proportion, "%)"))
 
-cnt <- sum(df$fa_overall_rating > 2 & df$fa_overall_rating <= 3, na.rm=T)
+cnt <- sum(rating & df$fa_overall_rating <= 3, na.rm=T)
 proportion <- round(cnt / w_cnt * 100, 2)
 print(paste0("worsened by >=25% = ", cnt, " (", proportion, "%)"))
 
-cnt <- sum(df$fa_overall_rating > 1 & df$fa_overall_rating <= 2, na.rm=T)
+cnt <- sum(rating & df$fa_overall_rating <= 2, na.rm=T)
 proportion <- round(cnt / w_cnt * 100, 2)
 print(paste0("worsened by >=50% = ", cnt, " (", proportion, "%)"))
 
-cnt <- sum(df$fa_overall_rating <= 1, na.rm=T)
+cnt <- sum(rating & df$fa_overall_rating <= 1, na.rm=T)
 proportion <- round(cnt / w_cnt * 100, 2)
 print(paste0("worsened by >=75% = ", cnt, " (", proportion, "%)"))
 ```
