@@ -312,6 +312,58 @@ for(i in 1:length(dosage_cols)) {
 }
 ```
 
+# Outcomes
+
+## Improvement
+
+```{r}
+i_cnt <- sum(df$fa_overall_rating >= 5, na.rm=T)
+proportion <- round(i_cnt / total_rows * 100, 2)
+print(paste0("showed improvement = ", i_cnt, " (", proportion, "%)"))
+
+cnt <- sum(df$fa_overall_rating >= 5 & df$fa_overall_rating < 6, na.rm=T)
+proportion <- round(cnt / i_cnt * 100, 2)
+print(paste0("showed >=25% improvement = ", cnt, " (", proportion, "%)"))
+
+cnt <- sum(df$fa_overall_rating >= 6 & df$fa_overall_rating < 7, na.rm=T)
+proportion <- round(cnt / i_cnt * 100, 2)
+print(paste0("showed >=25% improvement = ", cnt, " (", proportion, "%)"))
+
+cnt <- sum(df$fa_overall_rating >= 7, na.rm=T)
+proportion <- round(cnt / i_cnt * 100, 2)
+print(paste0("showed >=75% improvement = ", cnt, " (", proportion, "%)"))
+```
+
+## Worsened
+
+```{r}
+w_cnt <- sum(df$fa_overall_rating <= 3, na.rm=T)
+proportion <- round(w_cnt / total_rows * 100, 2)
+print(paste0("worsened = ", w_cnt, " (", proportion, "%)"))
+
+cnt <- sum(df$fa_overall_rating > 2 & df$fa_overall_rating <= 3, na.rm=T)
+proportion <- round(cnt / w_cnt * 100, 2)
+print(paste0("worsened by >=25% = ", cnt, " (", proportion, "%)"))
+
+cnt <- sum(df$fa_overall_rating > 1 & df$fa_overall_rating <= 2, na.rm=T)
+proportion <- round(cnt / w_cnt * 100, 2)
+print(paste0("worsened by >=50% = ", cnt, " (", proportion, "%)"))
+
+cnt <- sum(df$fa_overall_rating <= 1, na.rm=T)
+proportion <- round(cnt / w_cnt * 100, 2)
+print(paste0("worsened by >=75% = ", cnt, " (", proportion, "%)"))
+```
+
+## Stayed the Same
+
+```{r}
+cnt <- total_rows - i_cnt - w_cnt
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("stayed the same = ", cnt, " (", proportion, "%)"))
+```
+
+
+
 # Save Session Info
 
 ```{r}

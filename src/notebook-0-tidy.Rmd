@@ -340,7 +340,6 @@ stopifnot(round(mean(df$ptsd_rating, na.rm=TRUE), 3) == 4.205)
 stopifnot(identical(dim(df)+0, c(1308, 260))) # No change in data frame shape.
 ```
 
-
 # Final Summary
 
 Verify that the tidy data set contains only the expected columns.
