@@ -13,7 +13,7 @@ sex
 is_neutered
 neuter_age_in_mos
 neuter_age_in_yrs
-weight
+weight_lb
 has_exhibited_aggression
 has_thunderstorm_phobia
 has_non_thunderstorm_noise_phobia

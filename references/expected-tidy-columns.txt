@@ -9,7 +9,7 @@ acq_age_in_mos
 cur_age_in_mos
 is_neutered
 neuter_age_in_mos
-weight
+weight_kg
 has_exhibited_aggression
 has_thunderstorm_phobia
 has_non_thunderstorm_noise_phobia

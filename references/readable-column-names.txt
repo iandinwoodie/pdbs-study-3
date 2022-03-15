@@ -25,7 +25,7 @@ is_neuter_age_in_yrs
 neuter_age_in_mos
 neuter_age_in_yrs
 is_weight_known
-weight
+weight_lb
 is_behav_prob_suspected
 is_behav_prob_evident_at_acq
 is_behav_prob_start_age_known

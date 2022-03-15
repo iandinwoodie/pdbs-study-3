@@ -239,7 +239,7 @@ print(paste0("ACAAB/CAAB: ", sum(df_c$is_consultant_acaab, na.rm=TRUE)))
 ```
 
 ```{r}
-rm(df_c, c_rows)
+rm(df_c, c_rows, cred_cnt)
 ```
 
 ## Veterinarians
@@ -271,6 +271,45 @@ print(paste0("cognitive dysfunction: ",
              sum(df_v$has_vet_found_cognitive_dysfunction, na.rm=TRUE)))
 
 
+```
+
+```{r}
+rm(df_v, v_rows, cnt, proportion)
+```
+
+# Medication
+
+```{r}
+df_med <- df[c(254,71:191)]
+str(df_med, list.len=5)
+```
+
+```{r}
+cnt <- sum(df_med$is_medication_used, na.rm=T)
+proportion <- round(cnt / total_rows * 100, 2)
+print(paste0("used medication: ", cnt, " (", proportion, ")%"))
+```
+
+```{r}
+summary(df_med[4:16])
+```
+
+```{r}
+# Convert dose to daily dosage (dose x frequency / weight) for (mg/kg/day).
+dosage_cols <- c(31,38,45,52,59,66,73,80,87,94,101,108,115)
+for(i in 1:length(dosage_cols)) {
+  df_med[dosage_cols[i]] = df_med[dosage_cols[i]] * df_med[dosage_cols[i]+1] /
+    df_med$weight_kg
+}
+summary(df_med[dosage_cols])
+```
+
+```{r}
+# Output dosage record counts.
+for(i in 1:length(dosage_cols)) {
+  print(names(df_med[dosage_cols[i]]))
+  print(total_rows - sum(is.na(df_med[dosage_cols[i]])))
+}
 ```
 
 # Save Session Info
